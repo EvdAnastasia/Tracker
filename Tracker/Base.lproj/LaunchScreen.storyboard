@@ -28,6 +28,8 @@
                             <constraint firstItem="pWK-MO-S7Q" firstAttribute="centerY" secondItem="Ze5-6b-2t3" secondAttribute="centerY" id="NJ8-cH-xwj"/>
                         </constraints>
                     </view>
+                    <toolbarItems/>
+                    <simulatedToolbarMetrics key="simulatedBottomBarMetrics"/>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="iYj-Kq-Ea1" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
