@@ -39,15 +39,15 @@ final class TrackersViewController: UIViewController {
         let label = UILabel()
         label.text = "Трекеры"
         label.textColor = .ypBlack
-        label.font = .boldSystemFont(ofSize: 34.0)
+        label.font = .systemFont(ofSize: 34, weight: .bold)
         return label
     }()
     
     private lazy var searchTextField: UISearchTextField = {
         let textField = UISearchTextField()
-        textField.backgroundColor = .ypBackground
+        textField.backgroundColor = .white
         textField.textColor = .ypBlack
-        textField.font = .systemFont(ofSize: 17.0)
+        textField.font = .systemFont(ofSize: 17)
         textField.layer.cornerRadius = 10
         
         let attributes = [NSAttributedString.Key.foregroundColor: UIColor.ypGray]
@@ -66,7 +66,7 @@ final class TrackersViewController: UIViewController {
     private lazy var noTrackersLabel: UILabel = {
         let label = UILabel()
         label.text = "Что будем отслеживать?"
-        label.font = .systemFont(ofSize: 12.0)
+        label.font = .systemFont(ofSize: 12, weight: .medium)
         label.textAlignment = .center
         return label
     }()
@@ -133,8 +133,8 @@ final class TrackersViewController: UIViewController {
             
             trackersCollectionView.topAnchor.constraint(equalTo: searchTextField.bottomAnchor),
             trackersCollectionView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
-            trackersCollectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            trackersCollectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            trackersCollectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
+            trackersCollectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
         ])
     }
     
@@ -154,13 +154,12 @@ final class TrackersViewController: UIViewController {
 extension TrackersViewController: UICollectionViewDataSource {
     // количество ячеек
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        10
+        5
     }
     
     // генерация ячеек
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "TrackerCell", for: indexPath) as! TrackersCollectionViewCell
-        cell.titleLabel.text = "test"
         return cell
     }
 }
@@ -168,5 +167,15 @@ extension TrackersViewController: UICollectionViewDataSource {
 extension TrackersViewController: UICollectionViewDelegate {
     // нажатие на ячейку
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+    }
+}
+
+extension TrackersViewController: UICollectionViewDelegateFlowLayout {
+    func collectionView(
+        _ collectionView: UICollectionView,
+        layout collectionViewLayout: UICollectionViewLayout,
+        sizeForItemAt indexPath: IndexPath
+    ) -> CGSize {
+        return CGSize(width: 167, height: 148)
     }
 }
