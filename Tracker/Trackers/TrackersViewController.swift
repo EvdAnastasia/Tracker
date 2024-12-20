@@ -14,6 +14,9 @@ final class TrackersViewController: UIViewController {
     var completedTrackers: [TrackerRecord] = []
     
     // MARK: - Private Properties
+    private let cellWidth: CGFloat = 167
+    private let cellHeight: CGFloat = 148
+    
     private lazy var plusButton: UIBarButtonItem = {
         let addImage = UIImage(named: "AddIcon")
         let button = UIBarButtonItem(image: addImage, style: .plain, target: self, action: #selector(addNewTracker))
@@ -79,7 +82,7 @@ final class TrackersViewController: UIViewController {
         return stackView
     }()
     
-    private let trackersCollectionView: UICollectionView = {
+    private lazy var trackersCollectionView: UICollectionView = {
         let collectionView = UICollectionView(
             frame: .zero,
             collectionViewLayout: UICollectionViewFlowLayout()
@@ -139,7 +142,8 @@ final class TrackersViewController: UIViewController {
     }
     
     @objc private func addNewTracker() {
-        print("Add new tracker")
+        let trackerTypeSelectingViewController = TrackerTypeSelectingViewController()
+        self.present(trackerTypeSelectingViewController, animated: true, completion: nil)
     }
     
     @objc private func datePickerValueChanged(_ sender: UIDatePicker) {
@@ -171,11 +175,9 @@ extension TrackersViewController: UICollectionViewDelegate {
 }
 
 extension TrackersViewController: UICollectionViewDelegateFlowLayout {
-    func collectionView(
-        _ collectionView: UICollectionView,
-        layout collectionViewLayout: UICollectionViewLayout,
-        sizeForItemAt indexPath: IndexPath
+    // размеры ячейки
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath
     ) -> CGSize {
-        return CGSize(width: 167, height: 148)
+        return CGSize(width: cellWidth, height: cellHeight)
     }
 }

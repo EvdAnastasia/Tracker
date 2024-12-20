@@ -10,6 +10,12 @@ import UIKit
 final class TrackersCollectionViewCell: UICollectionViewCell {
     
     // MARK: - Private Properties
+    private let colorBackgroundViewHeight: CGFloat = 90
+    private let emojiBackgroundViewSize: CGFloat = 24
+    private let padding: CGFloat = 12
+    private let plusButtonSize: CGFloat = 34
+    private let plusButtonPadding: CGFloat = 8
+    
     private lazy var colorBackgroundView: UIView = {
         let view = UIView()
         view.backgroundColor = .ypColorSelection5
@@ -97,30 +103,28 @@ final class TrackersCollectionViewCell: UICollectionViewCell {
         NSLayoutConstraint.activate([
             colorBackgroundView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
             colorBackgroundView.topAnchor.constraint(equalTo: contentView.topAnchor),
-            colorBackgroundView.heightAnchor.constraint(equalToConstant: 90),
-            colorBackgroundView.widthAnchor.constraint(equalToConstant: contentView.bounds.width),
+            colorBackgroundView.heightAnchor.constraint(equalToConstant: colorBackgroundViewHeight),
+            colorBackgroundView.widthAnchor.constraint(equalTo: contentView.widthAnchor),
             
-            emojiBackgroundView.widthAnchor.constraint(equalToConstant: 24),
-            emojiBackgroundView.heightAnchor.constraint(equalToConstant: 24),
-            emojiBackgroundView.leadingAnchor.constraint(equalTo: colorBackgroundView.leadingAnchor, constant: 12),
-            emojiBackgroundView.topAnchor.constraint(equalTo: colorBackgroundView.topAnchor, constant: 12),
+            emojiBackgroundView.widthAnchor.constraint(equalToConstant: emojiBackgroundViewSize),
+            emojiBackgroundView.heightAnchor.constraint(equalToConstant: emojiBackgroundViewSize),
+            emojiBackgroundView.leadingAnchor.constraint(equalTo: colorBackgroundView.leadingAnchor, constant: padding),
+            emojiBackgroundView.topAnchor.constraint(equalTo: colorBackgroundView.topAnchor, constant: padding),
             
             emoji.centerXAnchor.constraint(equalTo: emojiBackgroundView.centerXAnchor),
             emoji.centerYAnchor.constraint(equalTo: emojiBackgroundView.centerYAnchor),
             
-            name.leadingAnchor.constraint(equalTo: colorBackgroundView.leadingAnchor, constant: 12),
-            name.trailingAnchor.constraint(equalTo: colorBackgroundView.trailingAnchor, constant: -12),
-            name.bottomAnchor.constraint(equalTo: colorBackgroundView.bottomAnchor, constant: -12),
+            name.leadingAnchor.constraint(equalTo: colorBackgroundView.leadingAnchor, constant: padding),
+            name.trailingAnchor.constraint(equalTo: colorBackgroundView.trailingAnchor, constant: -padding),
+            name.bottomAnchor.constraint(equalTo: colorBackgroundView.bottomAnchor, constant: -padding),
             
             counterStackView.topAnchor.constraint(equalTo: colorBackgroundView.bottomAnchor),
-            counterStackView.widthAnchor.constraint(equalToConstant: contentView.bounds.width),
-            counterStackView.topAnchor.constraint(equalTo: colorBackgroundView.bottomAnchor),
-            counterStackView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 12),
-            counterStackView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -12),
+            counterStackView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: padding),
+            counterStackView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -padding),
             
-            plusButton.widthAnchor.constraint(equalToConstant: 34),
-            plusButton.heightAnchor.constraint(equalToConstant: 34),
-            plusButton.topAnchor.constraint(equalTo: counterStackView.topAnchor, constant: 8),
+            plusButton.widthAnchor.constraint(equalToConstant: plusButtonSize),
+            plusButton.heightAnchor.constraint(equalToConstant: plusButtonSize),
+            plusButton.topAnchor.constraint(equalTo: counterStackView.topAnchor, constant: plusButtonPadding),
         ])
     }
     
