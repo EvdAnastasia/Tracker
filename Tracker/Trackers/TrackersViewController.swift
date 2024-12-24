@@ -88,6 +88,8 @@ final class TrackersViewController: UIViewController {
             collectionViewLayout: UICollectionViewFlowLayout()
         )
         collectionView.register(TrackersCollectionViewCell.self, forCellWithReuseIdentifier: "TrackerCell")
+        collectionView.dataSource = self
+        collectionView.delegate = self
         return collectionView
     }()
     
@@ -95,8 +97,6 @@ final class TrackersViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .ypWhite
-        trackersCollectionView.dataSource = self
-        trackersCollectionView.delegate = self
         
         setupNavBar()
         setupConstraints()
@@ -143,7 +143,8 @@ final class TrackersViewController: UIViewController {
     
     @objc private func addNewTracker() {
         let trackerTypeSelectingViewController = TrackerTypeSelectingViewController()
-        self.present(trackerTypeSelectingViewController, animated: true, completion: nil)
+        let trackerTypeSelectingNavController = UINavigationController(rootViewController: trackerTypeSelectingViewController)
+        navigationController?.present(trackerTypeSelectingNavController, animated: true)
     }
     
     @objc private func datePickerValueChanged(_ sender: UIDatePicker) {

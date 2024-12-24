@@ -32,14 +32,14 @@ final class TrackersCollectionViewCell: UICollectionViewCell {
         return view
     }()
     
-    private lazy var emoji: UILabel = {
+    private lazy var emojiLabel: UILabel = {
         let label = UILabel()
         label.text = "❤️"
         label.font = .systemFont(ofSize: 12)
         return label
     }()
     
-    private lazy var name: UILabel = {
+    private lazy var nameLabel: UILabel = {
         let label = UILabel()
         label.text = "Бабушка прислала открытку в вотсапе"
         label.font = .systemFont(ofSize: 12, weight: .medium)
@@ -49,7 +49,7 @@ final class TrackersCollectionViewCell: UICollectionViewCell {
         return label
     }()
     
-    private lazy var сounter: UILabel = {
+    private lazy var сounterLabel: UILabel = {
         let label = UILabel()
         label.text = "0 дней"
         label.font = .systemFont(ofSize: 12, weight: .medium)
@@ -67,7 +67,7 @@ final class TrackersCollectionViewCell: UICollectionViewCell {
     }()
     
     private lazy var counterStackView: UIStackView = {
-        let stackView = UIStackView(arrangedSubviews: [сounter, plusButton])
+        let stackView = UIStackView(arrangedSubviews: [сounterLabel, plusButton])
         stackView.axis = .horizontal
         stackView.alignment = .center
         stackView.distribution = .fill
@@ -88,17 +88,17 @@ final class TrackersCollectionViewCell: UICollectionViewCell {
     private func setupConstraints() {
         colorBackgroundView.translatesAutoresizingMaskIntoConstraints = false
         emojiBackgroundView.translatesAutoresizingMaskIntoConstraints = false
-        emoji.translatesAutoresizingMaskIntoConstraints = false
-        name.translatesAutoresizingMaskIntoConstraints = false
+        emojiLabel.translatesAutoresizingMaskIntoConstraints = false
+        nameLabel.translatesAutoresizingMaskIntoConstraints = false
         counterStackView.translatesAutoresizingMaskIntoConstraints = false
-        сounter.translatesAutoresizingMaskIntoConstraints = false
+        сounterLabel.translatesAutoresizingMaskIntoConstraints = false
         plusButton.translatesAutoresizingMaskIntoConstraints = false
         
         contentView.addSubview(colorBackgroundView)
         contentView.addSubview(emojiBackgroundView)
-        contentView.addSubview(name)
+        contentView.addSubview(nameLabel)
         contentView.addSubview(counterStackView)
-        emojiBackgroundView.addSubview(emoji)
+        emojiBackgroundView.addSubview(emojiLabel)
         
         NSLayoutConstraint.activate([
             colorBackgroundView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
@@ -111,12 +111,12 @@ final class TrackersCollectionViewCell: UICollectionViewCell {
             emojiBackgroundView.leadingAnchor.constraint(equalTo: colorBackgroundView.leadingAnchor, constant: padding),
             emojiBackgroundView.topAnchor.constraint(equalTo: colorBackgroundView.topAnchor, constant: padding),
             
-            emoji.centerXAnchor.constraint(equalTo: emojiBackgroundView.centerXAnchor),
-            emoji.centerYAnchor.constraint(equalTo: emojiBackgroundView.centerYAnchor),
+            emojiLabel.centerXAnchor.constraint(equalTo: emojiBackgroundView.centerXAnchor),
+            emojiLabel.centerYAnchor.constraint(equalTo: emojiBackgroundView.centerYAnchor),
             
-            name.leadingAnchor.constraint(equalTo: colorBackgroundView.leadingAnchor, constant: padding),
-            name.trailingAnchor.constraint(equalTo: colorBackgroundView.trailingAnchor, constant: -padding),
-            name.bottomAnchor.constraint(equalTo: colorBackgroundView.bottomAnchor, constant: -padding),
+            nameLabel.leadingAnchor.constraint(equalTo: colorBackgroundView.leadingAnchor, constant: padding),
+            nameLabel.trailingAnchor.constraint(equalTo: colorBackgroundView.trailingAnchor, constant: -padding),
+            nameLabel.bottomAnchor.constraint(equalTo: colorBackgroundView.bottomAnchor, constant: -padding),
             
             counterStackView.topAnchor.constraint(equalTo: colorBackgroundView.bottomAnchor),
             counterStackView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: padding),

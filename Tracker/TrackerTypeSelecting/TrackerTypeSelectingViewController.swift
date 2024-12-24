@@ -10,18 +10,8 @@ import UIKit
 final class TrackerTypeSelectingViewController: UIViewController {
     
     // MARK: - Private Properties
-    private let pageTitleHeight: CGFloat = 64
     private let buttonHeight: CGFloat = 60
     private let stackViewPadding: CGFloat = 20
-    
-    private lazy var pageTitle: UILabel = {
-        let label = UILabel()
-        label.text = "Создание трекера"
-        label.font = .systemFont(ofSize: 16, weight: .medium)
-        label.textColor = .ypBlack
-        label.textAlignment = .center
-        return label
-    }()
     
     private lazy var habitButton: UIButton = {
         let button = UIButton(type: .system)
@@ -60,30 +50,23 @@ final class TrackerTypeSelectingViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .ypWhite
+        navigationItem.title = "Создание трекера"
         
         setupConstraints()
     }
     
     // MARK: - Private Methods
     private func setupConstraints() {
-        pageTitle.translatesAutoresizingMaskIntoConstraints = false
         buttonsStackView.translatesAutoresizingMaskIntoConstraints = false
         habitButton.translatesAutoresizingMaskIntoConstraints = false
         irregularEventButton.translatesAutoresizingMaskIntoConstraints = false
         
-        view.addSubview(pageTitle)
         view.addSubview(buttonsStackView)
         
         NSLayoutConstraint.activate([
-            pageTitle.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            pageTitle.widthAnchor.constraint(equalTo: view.widthAnchor),
-            pageTitle.heightAnchor.constraint(equalToConstant: pageTitleHeight),
-            pageTitle.topAnchor.constraint(equalTo: view.topAnchor),
-            
-            buttonsStackView.widthAnchor.constraint(equalTo: view.widthAnchor, constant: -(stackViewPadding * 2)),
             buttonsStackView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: stackViewPadding),
             buttonsStackView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -stackViewPadding),
-            buttonsStackView.centerYAnchor.constraint(equalTo: view.centerYAnchor, constant: pageTitleHeight / 2),
+            buttonsStackView.centerYAnchor.constraint(equalTo: view.centerYAnchor),
             
             habitButton.heightAnchor.constraint(equalToConstant: buttonHeight),
             habitButton.leadingAnchor.constraint(equalTo: buttonsStackView.leadingAnchor),
@@ -96,10 +79,14 @@ final class TrackerTypeSelectingViewController: UIViewController {
     }
     
     @objc private func habitButtonTapped() {
-        print("Создать привычку")
+        let newHabitViewController = NewHabitViewController()
+        let newHabitNavController = UINavigationController(rootViewController: newHabitViewController)
+        navigationController?.present(newHabitNavController, animated: true)
     }
     
     @objc private func irregularEventButtonTapped() {
-        print("Создать нерегулярное событие")
+        let newIrregularEventViewController = NewIrregularEventViewController()
+        let newIrregularEventNavController = UINavigationController(rootViewController: newIrregularEventViewController)
+        navigationController?.present(newIrregularEventNavController, animated: true)
     }
 }
