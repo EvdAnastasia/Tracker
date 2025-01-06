@@ -10,8 +10,11 @@ import UIKit
 final class NewHabitViewController: UIViewController {
     
     // MARK: - Private Properties
+    private var categoryName: String? = "Важное" // // моковые данные, далее необходимо убрать после реализации создания категории
+    private var schedule: [WeekDay] = []
     private let reuseIdentifier = "HabitOptionCell"
     private let habitOptions: [String] = ["Категория", "Расписание"]
+    
     private let nameTextLimit = 38
     private let nameFieldHeight: CGFloat = 75
     private let habitOptionsTableViewHeight: CGFloat = 150
@@ -133,6 +136,12 @@ final class NewHabitViewController: UIViewController {
         ])
     }
     
+    private func showScheduleViewController() {
+        let scheduleViewController = ScheduleViewController()
+        let scheduleNavController = UINavigationController(rootViewController: scheduleViewController)
+        navigationController?.present(scheduleNavController, animated: true)
+    }
+    
     @objc private func cancelButtonTapped() {
         view?.window?.rootViewController?.dismiss(animated: true)
     }
@@ -182,18 +191,32 @@ extension NewHabitViewController: UITableViewDataSource {
             cell.separatorInset = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: .greatestFiniteMagnitude)
         }
         
-        // Добавить подтекст для ячейки
+        let option = habitOptions[indexPath.row]
+        if option == "Категория" {
+            cell.detailTextLabel?.text = categoryName
+        } else if option == "Расписание" && !schedule.isEmpty {
+            if schedule.count == 7 {
+                cell.detailTextLabel?.text = "Каждый день"
+            } else {
+                var titleDays: [String] = []
+                for day in schedule {
+                    titleDays.append(day.getShortDayName())
+                    cell.detailTextLabel?.text = titleDays.joined(separator: ", ")
+                }
+            }
+        }
+        
         return cell
     }
 }
 
 extension NewHabitViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        let item = habitOptions[indexPath.row]
-        if item == "Категория" {
+        let option = habitOptions[indexPath.row]
+        if option == "Категория" {
             print("Открыть стр категория")
-        } else if item == "Расписание" {
-            print("Открыть стр Расписание")
+        } else if option == "Расписание" {
+            showScheduleViewController()
         }
     }
 }

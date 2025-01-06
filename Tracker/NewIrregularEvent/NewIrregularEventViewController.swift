@@ -10,8 +10,12 @@ import UIKit
 final class NewIrregularEventViewController: UIViewController {
     
     // MARK: - Private Properties
+    private var categoryName: String? = "Важное" // // моковые данные, далее необходимо убрать после реализации создания категории
     private let reuseIdentifier = "IrregularEventOptionCell"
     private let habitOptions: [String] = ["Категория"]
+    private var schedule: [WeekDay] = WeekDay.allCases
+    private let trackersService = TrackersService.shared
+    
     private let nameTextLimit = 38
     private let nameFieldHeight: CGFloat = 75
     private let habitOptionsTableViewHeight: CGFloat = 75
@@ -138,7 +142,19 @@ final class NewIrregularEventViewController: UIViewController {
     }
     
     @objc private func createButtonTapped() {
-        print("Создать новое нерегулярное событие")
+        guard let title = nameField.text, let categoryName else { return }
+        
+        let newTracker = Tracker(
+            id: UUID(),
+            title: title,
+            color: .ypColorSelection11,
+            emoji: "✅",
+            schedule: schedule,
+            isHabit: false
+        )
+        
+        trackersService.addTracker(tracker: newTracker, for: categoryName)
+        view?.window?.rootViewController?.dismiss(animated: true)
     }
 }
 
@@ -182,15 +198,19 @@ extension NewIrregularEventViewController: UITableViewDataSource {
             cell.separatorInset = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: .greatestFiniteMagnitude)
         }
         
-        // Добавить подтекст для ячейки
+        let option = habitOptions[indexPath.row]
+        if option == "Категория" {
+            cell.detailTextLabel?.text = categoryName
+        }
+        
         return cell
     }
 }
 
 extension NewIrregularEventViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        let item = habitOptions[indexPath.row]
-        if item == "Категория" {
+        let option = habitOptions[indexPath.row]
+        if option == "Категория" {
             print("Открыть стр категория")
         }
     }
