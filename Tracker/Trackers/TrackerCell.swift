@@ -18,7 +18,6 @@ final class TrackerCell: UICollectionViewCell {
     weak var delegate: TrackerCellDelegate?
     
     // MARK: - Private Properties
-//    private var daysCount: Int = 0
     private var trackerId: UUID?
     private var isCompletedToday: Bool = false
     private var indexPath: IndexPath?
