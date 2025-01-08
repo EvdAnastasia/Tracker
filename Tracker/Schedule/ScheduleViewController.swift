@@ -7,11 +7,19 @@
 
 import UIKit
 
-final class ScheduleViewController: UIViewController, ScheduleTableViewCellDelegate {
-    var selectedDays: Set<WeekDay> = []
+protocol ScheduleViewControllerDelegate: AnyObject {
+    func didSelectSchedule(for days: [WeekDay])
+}
+
+final class ScheduleViewController: UIViewController {
+    
+    // MARK: - Public Properties
+    weak var delegate: ScheduleViewControllerDelegate?
     
     // MARK: - Private Properties
-    private let weekDays: [WeekDay] = [ .monday, .tuersday, .wednesday, .thursday, .friday, .saturday, .sunday ]
+    private let weekDays: [WeekDay] = WeekDay.allCases
+    private var selectedDays: Set<WeekDay> = []
+    
     private let cellHeight: CGFloat = 75
     private let doneButtonHeight: CGFloat = 60
     
@@ -38,6 +46,17 @@ final class ScheduleViewController: UIViewController, ScheduleTableViewCellDeleg
         button.addTarget(self, action: #selector(doneButtonTapped), for: .touchUpInside)
         return button
     }()
+    
+    // MARK: - Initializers
+    init(selectedDays: Set<WeekDay>) {
+        super.init(nibName: nil, bundle: nil)
+        self.selectedDays = selectedDays
+    }
+    
+    required init?(coder: NSCoder) {
+        super.init(coder: coder)
+        fatalError("init(coder:) has not been implemented")
+    }
     
     // MARK: - Overrides Methods
     override func viewDidLoad() {
@@ -70,10 +89,21 @@ final class ScheduleViewController: UIViewController, ScheduleTableViewCellDeleg
     }
     @objc
     private func doneButtonTapped() {
-        print("doneButtonTapped")
-        //        let sortedDay = selectedDays.sorted { $0.rawValue < $1.rawValue }
-        //        delegate?.didSelectSchedule(for: sortedDay)
-        //        navigationController?.dismiss(animated: true)
+        let sortedDay = selectedDays.sorted { $0.rawValue < $1.rawValue }
+        delegate?.didSelectSchedule(for: sortedDay)
+        navigationController?.dismiss(animated: true)
+    }
+}
+
+extension ScheduleViewController: ScheduleTableViewCellDelegate {
+    func didChangeSwitchState(for index: Int, isOn: Bool) {
+        let day = weekDays[index]
+        
+        if isOn {
+            selectedDays.insert(day)
+        } else {
+            selectedDays.remove(day)
+        }
     }
 }
 
@@ -89,9 +119,10 @@ extension ScheduleViewController: UITableViewDataSource {
         scheduleCell.delegate = self
         
         let dayName = weekDays[indexPath.row].getFullDayName()
-        let switchStatus = false
+        let index = weekDays[indexPath.row].rawValue - 1
+        let switchStatus = selectedDays.contains(weekDays[indexPath.row])
         
-        scheduleCell.configureCell(dayName: dayName, switchStatus: switchStatus)
+        scheduleCell.configureCell(dayName: dayName, index: index, switchStatus: switchStatus)
         
         if indexPath.row == weekDays.count - 1 {
             cell.separatorInset = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: UIScreen.main.bounds.width)

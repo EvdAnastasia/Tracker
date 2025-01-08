@@ -10,10 +10,9 @@ import UIKit
 final class NewIrregularEventViewController: UIViewController {
     
     // MARK: - Private Properties
-    private var categoryName: String? = "Важное" // // моковые данные, далее необходимо убрать после реализации создания категории
+    private var categoryName: String? = "Важное" // моковые данные, далее необходимо убрать после реализации создания категории
     private let reuseIdentifier = "IrregularEventOptionCell"
     private let habitOptions: [String] = ["Категория"]
-    private var schedule: [WeekDay] = WeekDay.allCases
     private let trackersService = TrackersService.shared
     
     private let nameTextLimit = 38
@@ -32,6 +31,7 @@ final class NewIrregularEventViewController: UIViewController {
         textField.textColor = .ypBlack
         textField.delegate = self
         textField.clearButtonMode = .whileEditing
+        textField.addTarget(self, action: #selector(nameFieldDidChange), for: .editingChanged)
         return textField
     }()
     
@@ -83,10 +83,10 @@ final class NewIrregularEventViewController: UIViewController {
         button.setTitle("Создать", for: .normal)
         button.titleLabel?.font = UIFont.systemFont(ofSize: 16, weight: .medium)
         button.setTitleColor(.ypWhite, for: .normal)
-        button.backgroundColor = .ypBlack
+        button.backgroundColor = .ypGray
         button.layer.cornerRadius = 16
         button.addTarget(self, action: #selector(createButtonTapped), for: .touchUpInside)
-        button.isEnabled = true
+        button.isEnabled = false
         return button
     }()
     
@@ -108,6 +108,16 @@ final class NewIrregularEventViewController: UIViewController {
     }
     
     // MARK: - Private Methods
+    private func updateCreateButtonState() {
+        if let name = nameField.text, !name.isEmpty {
+            createButton.backgroundColor = .ypBlack
+            createButton.isEnabled = true
+        } else {
+            createButton.backgroundColor = .ypGray
+            createButton.isEnabled = false
+        }
+    }
+    
     private func setupConstraints() {
         nameFieldStackView.translatesAutoresizingMaskIntoConstraints = false
         nameField.translatesAutoresizingMaskIntoConstraints = false
@@ -137,6 +147,10 @@ final class NewIrregularEventViewController: UIViewController {
         ])
     }
     
+    @objc private func nameFieldDidChange() {
+        updateCreateButtonState()
+    }
+    
     @objc private func cancelButtonTapped() {
         view?.window?.rootViewController?.dismiss(animated: true)
     }
@@ -149,7 +163,7 @@ final class NewIrregularEventViewController: UIViewController {
             title: title,
             color: .ypColorSelection11,
             emoji: "✅",
-            schedule: schedule,
+            schedule: [],
             isHabit: false
         )
         
@@ -167,7 +181,7 @@ extension NewIrregularEventViewController: UITextFieldDelegate {
         guard let stringRange = Range(range, in: currentText) else { return false }
         let updatedText = currentText.replacingCharacters(in: stringRange, with: string)
         
-        if updatedText.count > nameTextLimit {
+        if updatedText.count >= nameTextLimit {
             cautionLabel.isHidden = false
             return false
         } else {
@@ -211,6 +225,7 @@ extension NewIrregularEventViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let option = habitOptions[indexPath.row]
         if option == "Категория" {
+            // TODO: Добавить механику создания категории
             print("Открыть стр категория")
         }
     }

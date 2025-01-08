@@ -8,17 +8,18 @@
 import UIKit
 
 protocol ScheduleTableViewCellDelegate: AnyObject {
-    var selectedDays: Set<WeekDay> { get set }
+    func didChangeSwitchState(for index: Int, isOn: Bool)
 }
 
 final class ScheduleTableViewCell: UITableViewCell {
-    // исправить метод свитча на уникальный и передать день и вкл/выкл
     
     // MARK: - Public Properties
     static let reuseIdentifier = "ScheduleCell"
     weak var delegate: ScheduleTableViewCellDelegate?
     
     // MARK: - Private Properties
+    private var index: Int?
+    
     private lazy var dayLabel: UILabel = {
         let label = UILabel()
         label.font = UIFont.systemFont(ofSize: 17, weight: .regular)
@@ -47,7 +48,11 @@ final class ScheduleTableViewCell: UITableViewCell {
     }
     
     // MARK: - Public Methods
-    func configureCell(dayName: String, switchStatus: Bool) {
+    func configureCell(dayName: String,
+                       index: Int,
+                       switchStatus: Bool
+    ) {
+        self.index = index
         dayLabel.text = dayName
         daySwitchControl.isOn = switchStatus
     }
@@ -74,13 +79,8 @@ final class ScheduleTableViewCell: UITableViewCell {
         ])
     }
     
-    @objc
-    private func switchControlChanged(_ sender: UISwitch) {
-        guard let day = WeekDay(rawValue: sender.tag) else { return }
-        if sender.isOn {
-            delegate?.selectedDays.insert(day)
-        } else {
-            delegate?.selectedDays.remove(day)
-        }
+    @objc private func switchControlChanged(_ sender: UISwitch) {
+        guard let index else { return }
+        delegate?.didChangeSwitchState(for: index, isOn: sender.isOn)
     }
 }

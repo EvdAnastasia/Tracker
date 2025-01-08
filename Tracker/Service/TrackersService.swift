@@ -34,8 +34,8 @@ final class TrackersService {
                     title: "Протереть пыль",
                     color: .ypColorSelection8,
                     emoji: "💪",
-                    schedule: [.tuersday, .thursday],
-                    isHabit: true
+                    schedule: [],
+                    isHabit: false
                 )
             ]
         ),

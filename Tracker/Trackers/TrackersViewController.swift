@@ -14,6 +14,7 @@ final class TrackersViewController: UIViewController {
     private var categories: [TrackerCategory] = []
     private var filteredСategories: [TrackerCategory] = []
     private var completedTrackers: [TrackerRecord] = []
+    private var currentDate: Date = Date()
     
     private let cellHeight: CGFloat = 148
     
@@ -121,14 +122,22 @@ final class TrackersViewController: UIViewController {
     
     private func reloadFilteredCategories() {
         let calendar = Calendar.current
-        let selectedWeekDay = calendar.component(.weekday, from: datePicker.date)
+        let selectedWeekDay = calendar.component(.weekday, from: currentDate)
         let filterWeekday = selectedWeekDay == 1 ? 7 : selectedWeekDay - 1
+        let today = Date()
         
         filteredСategories = categories.compactMap { category in
             let trackers = category.trackers.filter { tracker in
                 tracker.schedule.contains { weekDay in
                     weekDay.rawValue == filterWeekday
-                } == true
+                } == true ||
+                // нерегулярное событие показываем сегодня, если оно не было выполнено до этого
+                (!tracker.isHabit &&
+                 Calendar.current.isDate(today, inSameDayAs: currentDate) &&
+                 completedTrackers.contains { $0.trackerId == tracker.id } == false
+                ) ||
+                // или если было выполнено в этот день
+                !tracker.isHabit && isTrackerCompletedToday(id: tracker.id)
             }
             
             if trackers.isEmpty { return nil }
@@ -188,6 +197,7 @@ final class TrackersViewController: UIViewController {
     }
     
     @objc private func dateChanged() {
+        currentDate = datePicker.date
         reloadFilteredCategories()
     }
 }
@@ -249,7 +259,7 @@ extension TrackersViewController: UICollectionViewDataSource {
     }
     
     private func isSameTrackerRecord(trackerRecord: TrackerRecord, id: UUID) -> Bool {
-        let isSameDay = Calendar.current.isDate(trackerRecord.date, inSameDayAs: datePicker.date)
+        let isSameDay = Calendar.current.isDate(trackerRecord.date, inSameDayAs: currentDate)
         return trackerRecord.trackerId == id && isSameDay
     }
 }
@@ -273,7 +283,7 @@ extension TrackersViewController: UICollectionViewDelegateFlowLayout {
 
 extension TrackersViewController: TrackerCellDelegate {
     func completeTracker(id: UUID, at indexPath: IndexPath) {
-        let trackerRecord = TrackerRecord(trackerId: id, date: datePicker.date)
+        let trackerRecord = TrackerRecord(trackerId: id, date: currentDate)
         completedTrackers.append(trackerRecord)
         
         trackersCollectionView.reloadItems(at: [indexPath])

@@ -10,10 +10,11 @@ import UIKit
 final class NewHabitViewController: UIViewController {
     
     // MARK: - Private Properties
-    private var categoryName: String? = "Важное" // // моковые данные, далее необходимо убрать после реализации создания категории
-    private var schedule: [WeekDay] = []
+    private var categoryName: String? = "Важное" // моковые данные, далее необходимо убрать после реализации создания категории
+    private var selectedDays: [WeekDay] = []
     private let reuseIdentifier = "HabitOptionCell"
     private let habitOptions: [String] = ["Категория", "Расписание"]
+    private let trackersService = TrackersService.shared
     
     private let nameTextLimit = 38
     private let nameFieldHeight: CGFloat = 75
@@ -31,6 +32,7 @@ final class NewHabitViewController: UIViewController {
         textField.textColor = .ypBlack
         textField.delegate = self
         textField.clearButtonMode = .whileEditing
+        textField.addTarget(self, action: #selector(nameFieldDidChange), for: .editingChanged)
         return textField
     }()
     
@@ -82,10 +84,10 @@ final class NewHabitViewController: UIViewController {
         button.setTitle("Создать", for: .normal)
         button.titleLabel?.font = UIFont.systemFont(ofSize: 16, weight: .medium)
         button.setTitleColor(.ypWhite, for: .normal)
-        button.backgroundColor = .ypBlack
+        button.backgroundColor = .ypGray
         button.layer.cornerRadius = 16
         button.addTarget(self, action: #selector(createButtonTapped), for: .touchUpInside)
-        button.isEnabled = true
+        button.isEnabled = false
         return button
     }()
     
@@ -107,6 +109,19 @@ final class NewHabitViewController: UIViewController {
     }
     
     // MARK: - Private Methods
+    private func updateCreateButtonState() {
+        if let name = nameField.text,
+           !name.isEmpty,
+           !selectedDays.isEmpty
+        {
+            createButton.backgroundColor = .ypBlack
+            createButton.isEnabled = true
+        } else {
+            createButton.backgroundColor = .ypGray
+            createButton.isEnabled = false
+        }
+    }
+    
     private func setupConstraints() {
         nameFieldStackView.translatesAutoresizingMaskIntoConstraints = false
         nameField.translatesAutoresizingMaskIntoConstraints = false
@@ -137,9 +152,15 @@ final class NewHabitViewController: UIViewController {
     }
     
     private func showScheduleViewController() {
-        let scheduleViewController = ScheduleViewController()
+        let days = Set(selectedDays)
+        let scheduleViewController = ScheduleViewController(selectedDays: days)
+        scheduleViewController.delegate = self
         let scheduleNavController = UINavigationController(rootViewController: scheduleViewController)
         navigationController?.present(scheduleNavController, animated: true)
+    }
+    
+    @objc private func nameFieldDidChange() {
+        updateCreateButtonState()
     }
     
     @objc private func cancelButtonTapped() {
@@ -147,7 +168,27 @@ final class NewHabitViewController: UIViewController {
     }
     
     @objc private func createButtonTapped() {
-        print("Создать новую привычку")
+        guard let title = nameField.text, let categoryName else { return }
+        
+        let newTracker = Tracker(
+            id: UUID(),
+            title: title,
+            color: .ypColorSelection13,
+            emoji: "✅",
+            schedule: selectedDays,
+            isHabit: true
+        )
+        
+        trackersService.addTracker(tracker: newTracker, for: categoryName)
+        view?.window?.rootViewController?.dismiss(animated: true)
+    }
+}
+
+extension NewHabitViewController: ScheduleViewControllerDelegate {
+    func didSelectSchedule(for days: [WeekDay]) {
+        selectedDays = days
+        habitOptionsTableView.reloadData()
+        updateCreateButtonState()
     }
 }
 
@@ -194,12 +235,12 @@ extension NewHabitViewController: UITableViewDataSource {
         let option = habitOptions[indexPath.row]
         if option == "Категория" {
             cell.detailTextLabel?.text = categoryName
-        } else if option == "Расписание" && !schedule.isEmpty {
-            if schedule.count == 7 {
+        } else if option == "Расписание" && !selectedDays.isEmpty {
+            if selectedDays.count == 7 {
                 cell.detailTextLabel?.text = "Каждый день"
             } else {
                 var titleDays: [String] = []
-                for day in schedule {
+                for day in selectedDays {
                     titleDays.append(day.getShortDayName())
                     cell.detailTextLabel?.text = titleDays.joined(separator: ", ")
                 }
