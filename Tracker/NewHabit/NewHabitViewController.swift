@@ -99,12 +99,17 @@ final class NewHabitViewController: UIViewController {
         return stackView
     }()
     
+    private lazy var tapGesture: UITapGestureRecognizer = {
+        let gesture = UITapGestureRecognizer(target: self, action: #selector(hideKeyboard))
+        gesture.cancelsTouchesInView = false
+        return gesture
+    }()
+    
     // MARK: - Overrides Methods
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = .ypWhite
-        navigationItem.title = "Новая привычка"
         
+        configureView()
         setupConstraints()
     }
     
@@ -122,6 +127,11 @@ final class NewHabitViewController: UIViewController {
         }
     }
     
+    private func configureView() {
+        view.backgroundColor = .ypWhite
+        navigationItem.title = "Новая привычка"
+    }
+    
     private func setupConstraints() {
         nameFieldStackView.translatesAutoresizingMaskIntoConstraints = false
         nameField.translatesAutoresizingMaskIntoConstraints = false
@@ -132,6 +142,7 @@ final class NewHabitViewController: UIViewController {
         view.addSubview(nameFieldStackView)
         view.addSubview(habitOptionsTableView)
         view.addSubview(buttonsStackView)
+        view.addGestureRecognizer(tapGesture)
         
         NSLayoutConstraint.activate([
             nameFieldStackView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 24),
@@ -182,6 +193,10 @@ final class NewHabitViewController: UIViewController {
         trackersService.addTracker(tracker: newTracker, for: categoryName)
         view?.window?.rootViewController?.dismiss(animated: true)
     }
+    
+    @objc private func hideKeyboard() {
+        view?.endEditing(true)
+    }
 }
 
 extension NewHabitViewController: ScheduleViewControllerDelegate {
@@ -210,6 +225,10 @@ extension NewHabitViewController: UITextFieldDelegate {
         }
     }
     
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        textField.resignFirstResponder()
+        return true
+    }
 }
 
 extension NewHabitViewController: UITableViewDataSource {

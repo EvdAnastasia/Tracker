@@ -49,13 +49,17 @@ final class TrackerTypeSelectingViewController: UIViewController {
     // MARK: - Overrides Methods
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = .ypWhite
-        navigationItem.title = "Создание трекера"
         
+        configureView()
         setupConstraints()
     }
     
     // MARK: - Private Methods
+    private func configureView() {
+        view.backgroundColor = .ypWhite
+        navigationItem.title = "Создание трекера"
+    }
+    
     private func setupConstraints() {
         buttonsStackView.translatesAutoresizingMaskIntoConstraints = false
         habitButton.translatesAutoresizingMaskIntoConstraints = false

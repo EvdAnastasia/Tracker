@@ -61,13 +61,17 @@ final class ScheduleViewController: UIViewController {
     // MARK: - Overrides Methods
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = .ypWhite
-        navigationItem.title = "Расписание"
         
+        configureView()
         setupConstraints()
     }
     
     // MARK: - Private Methods
+    private func configureView() {
+        view.backgroundColor = .ypWhite
+        navigationItem.title = "Расписание"
+    }
+    
     private func setupConstraints() {
         scheduleTableView.translatesAutoresizingMaskIntoConstraints = false
         doneButton.translatesAutoresizingMaskIntoConstraints = false

@@ -98,12 +98,17 @@ final class NewIrregularEventViewController: UIViewController {
         return stackView
     }()
     
+    private lazy var tapGesture: UITapGestureRecognizer = {
+        let gesture = UITapGestureRecognizer(target: self, action: #selector(hideKeyboard))
+        gesture.cancelsTouchesInView = false
+        return gesture
+    }()
+    
     // MARK: - Overrides Methods
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = .ypWhite
-        navigationItem.title = "Новое нерегулярное событие"
         
+        configureView()
         setupConstraints()
     }
     
@@ -118,6 +123,11 @@ final class NewIrregularEventViewController: UIViewController {
         }
     }
     
+    private func configureView() {
+        view.backgroundColor = .ypWhite
+        navigationItem.title = "Новое нерегулярное событие"
+    }
+    
     private func setupConstraints() {
         nameFieldStackView.translatesAutoresizingMaskIntoConstraints = false
         nameField.translatesAutoresizingMaskIntoConstraints = false
@@ -128,6 +138,7 @@ final class NewIrregularEventViewController: UIViewController {
         view.addSubview(nameFieldStackView)
         view.addSubview(habitOptionsTableView)
         view.addSubview(buttonsStackView)
+        view.addGestureRecognizer(tapGesture)
         
         NSLayoutConstraint.activate([
             nameFieldStackView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 24),
@@ -170,6 +181,10 @@ final class NewIrregularEventViewController: UIViewController {
         trackersService.addTracker(tracker: newTracker, for: categoryName)
         view?.window?.rootViewController?.dismiss(animated: true)
     }
+    
+    @objc private func hideKeyboard() {
+        view?.endEditing(true)
+    }
 }
 
 extension NewIrregularEventViewController: UITextFieldDelegate {
@@ -190,6 +205,10 @@ extension NewIrregularEventViewController: UITextFieldDelegate {
         }
     }
     
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        textField.resignFirstResponder()
+        return true
+    }
 }
 
 extension NewIrregularEventViewController: UITableViewDataSource {

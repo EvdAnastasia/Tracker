@@ -53,6 +53,7 @@ final class TrackersViewController: UIViewController {
         textField.textColor = .ypBlack
         textField.font = .systemFont(ofSize: 17)
         textField.layer.cornerRadius = 10
+        textField.delegate = self
         
         let attributes = [NSAttributedString.Key.foregroundColor: UIColor.ypGray]
         let attributedPlaceholder = NSAttributedString(string: "Поиск", attributes: attributes)
@@ -93,6 +94,12 @@ final class TrackersViewController: UIViewController {
         collectionView.dataSource = self
         collectionView.delegate = self
         return collectionView
+    }()
+    
+    private lazy var tapGesture: UITapGestureRecognizer = {
+        let gesture = UITapGestureRecognizer(target: self, action: #selector(hideKeyboard))
+        gesture.cancelsTouchesInView = false
+        return gesture
     }()
     
     // MARK: - Overrides Methods
@@ -169,6 +176,7 @@ final class TrackersViewController: UIViewController {
         view.addSubview(searchTextField)
         view.addSubview(noTrackersStackView)
         view.addSubview(trackersCollectionView)
+        view.addGestureRecognizer(tapGesture)
         
         NSLayoutConstraint.activate([
             nameLabel.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 16),
@@ -199,6 +207,10 @@ final class TrackersViewController: UIViewController {
     @objc private func dateChanged() {
         currentDate = datePicker.date
         reloadFilteredCategories()
+    }
+    
+    @objc private func hideKeyboard() {
+        view?.endEditing(true)
     }
 }
 
@@ -297,5 +309,12 @@ extension TrackersViewController: TrackerCellDelegate {
         }
         
         trackersCollectionView.reloadItems(at: [indexPath])
+    }
+}
+
+extension TrackersViewController: UITextFieldDelegate {
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        textField.resignFirstResponder()
+        return true
     }
 }
