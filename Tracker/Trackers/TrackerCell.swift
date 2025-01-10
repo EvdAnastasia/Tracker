@@ -95,6 +95,7 @@ final class TrackerCell: UICollectionViewCell {
     func configure(
         with tracker: Tracker,
         isCompletedToday: Bool,
+        isFutureTracker: Bool,
         completedDays: Int,
         indexPath: IndexPath
     ) {
@@ -110,12 +111,17 @@ final class TrackerCell: UICollectionViewCell {
         let wordDay = pluralizeDays(completedDays)
         сounterLabel.text = "\(wordDay)"
         
-        let image = isCompletedToday ?
-        UIImage(named: "DoneIcon")?.withRenderingMode(.alwaysTemplate) :
-        UIImage(named: "PlusIcon")?.withRenderingMode(.alwaysTemplate)
-        plusButton.setImage(image, for: .normal)
-        plusButton.tintColor = color
-        plusButton.alpha = isCompletedToday ?  0.3 : 1
+        if isFutureTracker {
+            plusButton.isHidden = true
+        } else {
+            plusButton.isHidden = false
+            let image = isCompletedToday ?
+            UIImage(named: "DoneIcon")?.withRenderingMode(.alwaysTemplate) :
+            UIImage(named: "PlusIcon")?.withRenderingMode(.alwaysTemplate)
+            plusButton.setImage(image, for: .normal)
+            plusButton.tintColor = color
+            plusButton.alpha = isCompletedToday ?  0.3 : 1
+        }
     }
     
     // MARK: - Private Methods

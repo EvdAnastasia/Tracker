@@ -242,9 +242,11 @@ extension TrackersViewController: UICollectionViewDataSource {
         
         let isCompletedToday = isTrackerCompletedToday(id: tracker.id)
         let completedDays = completedTrackers.filter { $0.trackerId == tracker.id }.count
+        let isFutureTracker = currentDate > Date()
         cell.configure(
             with: tracker,
             isCompletedToday: isCompletedToday,
+            isFutureTracker: isFutureTracker,
             completedDays: completedDays,
             indexPath: indexPath
         )
