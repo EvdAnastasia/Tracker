@@ -160,8 +160,8 @@ final class GenericEventViewController: UIViewController {
     }
     
     private func updateCreateButtonState() {
-        let notEmpty = nameField.text?.isEmpty == false &&
-        eventType == EventType.habit ? !selectedDays.isEmpty : true
+        let notEmpty = (nameField.text?.isEmpty == false) &&
+        (eventType == EventType.habit ? !selectedDays.isEmpty : true)
         
         createButton.backgroundColor = notEmpty ? .ypBlack : .ypGray
         createButton.isEnabled = notEmpty
