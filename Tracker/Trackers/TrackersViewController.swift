@@ -7,6 +7,10 @@
 
 import UIKit
 
+private enum Constants {
+    static let cellHeight: CGFloat = 148
+}
+
 final class TrackersViewController: UIViewController {
     
     // MARK: - Private Properties
@@ -15,8 +19,6 @@ final class TrackersViewController: UIViewController {
     private var filteredСategories: [TrackerCategory] = []
     private var completedTrackers: [TrackerRecord] = []
     private var currentDate: Date = Date()
-    
-    private let cellHeight: CGFloat = 148
     
     private lazy var plusButton: UIBarButtonItem = {
         let addImage = UIImage(named: "AddIcon")
@@ -65,6 +67,7 @@ final class TrackersViewController: UIViewController {
         let imageView = UIImageView()
         imageView.image = UIImage(named: "StarIcon")
         imageView.contentMode = .scaleAspectFit
+        imageView.translatesAutoresizingMaskIntoConstraints = false
         return imageView
     }()
     
@@ -73,6 +76,7 @@ final class TrackersViewController: UIViewController {
         label.text = "Что будем отслеживать?"
         label.font = .systemFont(ofSize: 12, weight: .medium)
         label.textAlignment = .center
+        label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
     
@@ -131,24 +135,11 @@ final class TrackersViewController: UIViewController {
         let calendar = Calendar.current
         let selectedWeekDay = calendar.component(.weekday, from: currentDate)
         let filterWeekday = selectedWeekDay == 1 ? 7 : selectedWeekDay - 1
-        let today = Date()
         
         filteredСategories = categories.compactMap { category in
-            let trackers = category.trackers.filter { tracker in
-                tracker.schedule.contains { weekDay in
-                    weekDay.rawValue == filterWeekday
-                } == true ||
-                // нерегулярное событие показываем сегодня, если оно не было выполнено до этого
-                (!tracker.isHabit &&
-                 Calendar.current.isDate(today, inSameDayAs: currentDate) &&
-                 completedTrackers.contains { $0.trackerId == tracker.id } == false
-                ) ||
-                // или если было выполнено в этот день
-                !tracker.isHabit && isTrackerCompletedToday(id: tracker.id)
-            }
+            let trackers = filter(trackers: category.trackers, filterWeekday: filterWeekday)
             
-            if trackers.isEmpty { return nil }
-            
+            guard !trackers.isEmpty else { return nil }
             return TrackerCategory(
                 title: category.title,
                 trackers: trackers
@@ -159,23 +150,32 @@ final class TrackersViewController: UIViewController {
         reloadNoTrackersView()
     }
     
+    private func filter(trackers: [Tracker], filterWeekday: Int) -> [Tracker] {
+        trackers.filter { tracker in
+            tracker.schedule.contains { weekDay in weekDay.rawValue == filterWeekday} == true ||
+            // нерегулярное событие показываем сегодня, если оно не было выполнено до этого
+            (!tracker.isHabit &&
+             Calendar.current.isDate(Date(), inSameDayAs: currentDate) &&
+             completedTrackers.contains { $0.trackerId == tracker.id } == false) ||
+            // или если было выполнено в этот день
+            !tracker.isHabit && isTrackerCompletedToday(id: tracker.id)
+        }
+    }
+    
     private func reloadNoTrackersView() {
         noTrackersStackView.isHidden = !categories.isEmpty
         trackersCollectionView.isHidden = categories.isEmpty
     }
     
     private func setupConstraints() {
-        nameLabel.translatesAutoresizingMaskIntoConstraints = false
-        noTrackersImageView.translatesAutoresizingMaskIntoConstraints = false
-        noTrackersLabel.translatesAutoresizingMaskIntoConstraints = false
-        noTrackersStackView.translatesAutoresizingMaskIntoConstraints = false
-        trackersCollectionView.translatesAutoresizingMaskIntoConstraints = false
-        searchTextField.translatesAutoresizingMaskIntoConstraints = false
+        [nameLabel,
+         searchTextField,
+         noTrackersStackView,
+         trackersCollectionView].forEach {
+            $0.translatesAutoresizingMaskIntoConstraints = false
+            view.addSubview($0)
+        }
         
-        view.addSubview(nameLabel)
-        view.addSubview(searchTextField)
-        view.addSubview(noTrackersStackView)
-        view.addSubview(trackersCollectionView)
         view.addGestureRecognizer(tapGesture)
         
         NSLayoutConstraint.activate([
@@ -227,7 +227,11 @@ extension TrackersViewController: UICollectionViewDataSource {
     }
     
     // заголовок секции
-    func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
+    func collectionView(
+        _ collectionView: UICollectionView,
+        viewForSupplementaryElementOfKind kind: String,
+        at indexPath: IndexPath
+    ) -> UICollectionReusableView {
         let header = collectionView.dequeueReusableSupplementaryView(ofKind: UICollectionView.elementKindSectionHeader , withReuseIdentifier: "SectionHeader", for: indexPath) as? TrackersHeaderSection
         guard let header else { return UICollectionReusableView() }
         let titleCategory = filteredСategories[indexPath.section].title
@@ -236,13 +240,19 @@ extension TrackersViewController: UICollectionViewDataSource {
     }
     
     // количество ячеек
-    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+    func collectionView(
+        _ collectionView: UICollectionView,
+        numberOfItemsInSection section: Int
+    ) -> Int {
         let trackers = filteredСategories[section].trackers
         return trackers.count
     }
     
     // генерация ячеек
-    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+    func collectionView(
+        _ collectionView: UICollectionView,
+        cellForItemAt indexPath: IndexPath
+    ) -> UICollectionViewCell {
         guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "TrackerCell", for: indexPath) as? TrackerCell else {
             return UICollectionViewCell()
         }
@@ -280,17 +290,29 @@ extension TrackersViewController: UICollectionViewDataSource {
 
 extension TrackersViewController: UICollectionViewDelegateFlowLayout {
     // размеры ячейки
-    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-        return CGSize(width: (collectionView.bounds.width - 9)/2, height: cellHeight)
+    func collectionView(
+        _ collectionView: UICollectionView,
+        layout collectionViewLayout: UICollectionViewLayout,
+        sizeForItemAt indexPath: IndexPath
+    ) -> CGSize {
+        return CGSize(width: (collectionView.bounds.width - 9)/2, height: Constants.cellHeight)
     }
     
     // расстояние между ячейками
-    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumInteritemSpacingForSectionAt section: Int) -> CGFloat {
+    func collectionView(
+        _ collectionView: UICollectionView,
+        layout collectionViewLayout: UICollectionViewLayout,
+        minimumInteritemSpacingForSectionAt section: Int
+    ) -> CGFloat {
         return 9
     }
     
     // высота заголовка секции
-    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForHeaderInSection section: Int) -> CGSize {
+    func collectionView(
+        _ collectionView: UICollectionView,
+        layout collectionViewLayout: UICollectionViewLayout,
+        referenceSizeForHeaderInSection section: Int
+    ) -> CGSize {
         return CGSize(width: collectionView.bounds.width, height: 48)
     }
 }

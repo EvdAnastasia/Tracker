@@ -7,7 +7,7 @@
 
 import UIKit
 
-class CustomTextField: UITextField {
+final class CustomTextField: UITextField {
     
     // MARK: - Public Properties
     var padding: UIEdgeInsets

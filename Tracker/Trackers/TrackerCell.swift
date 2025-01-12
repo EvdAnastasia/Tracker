@@ -12,6 +12,14 @@ protocol TrackerCellDelegate: AnyObject {
     func uncompleteTracker(id: UUID, at indexPath: IndexPath)
 }
 
+private enum Constants {
+    static let colorBackgroundViewHeight: CGFloat = 90
+    static let emojiBackgroundViewSize: CGFloat = 24
+    static let padding: CGFloat = 12
+    static let plusButtonSize: CGFloat = 34
+    static let plusButtonPadding: CGFloat = 8
+}
+
 final class TrackerCell: UICollectionViewCell {
     
     // MARK: - Public Properties
@@ -21,12 +29,6 @@ final class TrackerCell: UICollectionViewCell {
     private var trackerId: UUID?
     private var isCompletedToday: Bool = false
     private var indexPath: IndexPath?
-    
-    private let colorBackgroundViewHeight: CGFloat = 90
-    private let emojiBackgroundViewSize: CGFloat = 24
-    private let padding: CGFloat = 12
-    private let plusButtonSize: CGFloat = 34
-    private let plusButtonPadding: CGFloat = 8
     
     private lazy var colorBackgroundView: UIView = {
         let view = UIView()
@@ -47,6 +49,7 @@ final class TrackerCell: UICollectionViewCell {
     private lazy var emojiLabel: UILabel = {
         let label = UILabel()
         label.font = .systemFont(ofSize: 12)
+        label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
     
@@ -64,11 +67,13 @@ final class TrackerCell: UICollectionViewCell {
         label.text = "0 дней"
         label.font = .systemFont(ofSize: 12, weight: .medium)
         label.textColor = .ypBlack
+        label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
     
     private lazy var plusButton: UIButton = {
         let button = UIButton(type: .custom)
+        button.translatesAutoresizingMaskIntoConstraints = false
         button.addTarget(self, action: #selector(trackButtonTapped), for: .touchUpInside)
         return button
     }()
@@ -139,45 +144,41 @@ final class TrackerCell: UICollectionViewCell {
     }
     
     private func setupConstraints() {
-        colorBackgroundView.translatesAutoresizingMaskIntoConstraints = false
-        emojiBackgroundView.translatesAutoresizingMaskIntoConstraints = false
-        emojiLabel.translatesAutoresizingMaskIntoConstraints = false
-        nameLabel.translatesAutoresizingMaskIntoConstraints = false
-        counterStackView.translatesAutoresizingMaskIntoConstraints = false
-        сounterLabel.translatesAutoresizingMaskIntoConstraints = false
-        plusButton.translatesAutoresizingMaskIntoConstraints = false
+        [colorBackgroundView,
+         emojiBackgroundView,
+         nameLabel,
+         counterStackView].forEach {
+            $0.translatesAutoresizingMaskIntoConstraints = false
+            contentView.addSubview($0)
+        }
         
-        contentView.addSubview(colorBackgroundView)
-        contentView.addSubview(emojiBackgroundView)
-        contentView.addSubview(nameLabel)
-        contentView.addSubview(counterStackView)
         emojiBackgroundView.addSubview(emojiLabel)
         
         NSLayoutConstraint.activate([
             colorBackgroundView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
             colorBackgroundView.topAnchor.constraint(equalTo: contentView.topAnchor),
-            colorBackgroundView.heightAnchor.constraint(equalToConstant: colorBackgroundViewHeight),
+            colorBackgroundView.heightAnchor.constraint(equalToConstant: Constants.colorBackgroundViewHeight),
             colorBackgroundView.widthAnchor.constraint(equalTo: contentView.widthAnchor),
             
-            emojiBackgroundView.widthAnchor.constraint(equalToConstant: emojiBackgroundViewSize),
-            emojiBackgroundView.heightAnchor.constraint(equalToConstant: emojiBackgroundViewSize),
-            emojiBackgroundView.leadingAnchor.constraint(equalTo: colorBackgroundView.leadingAnchor, constant: padding),
-            emojiBackgroundView.topAnchor.constraint(equalTo: colorBackgroundView.topAnchor, constant: padding),
+            emojiBackgroundView.widthAnchor.constraint(equalToConstant: Constants.emojiBackgroundViewSize),
+            emojiBackgroundView.heightAnchor.constraint(equalToConstant: Constants.emojiBackgroundViewSize),
+            emojiBackgroundView.leadingAnchor.constraint(equalTo: colorBackgroundView.leadingAnchor, constant: Constants.padding),
+            emojiBackgroundView.topAnchor.constraint(equalTo: colorBackgroundView.topAnchor, constant: Constants.padding),
             
             emojiLabel.centerXAnchor.constraint(equalTo: emojiBackgroundView.centerXAnchor),
             emojiLabel.centerYAnchor.constraint(equalTo: emojiBackgroundView.centerYAnchor),
             
-            nameLabel.leadingAnchor.constraint(equalTo: colorBackgroundView.leadingAnchor, constant: padding),
-            nameLabel.trailingAnchor.constraint(equalTo: colorBackgroundView.trailingAnchor, constant: -padding),
-            nameLabel.bottomAnchor.constraint(equalTo: colorBackgroundView.bottomAnchor, constant: -padding),
+            nameLabel.leadingAnchor.constraint(equalTo: colorBackgroundView.leadingAnchor, constant: Constants.padding),
+            nameLabel.trailingAnchor.constraint(equalTo: colorBackgroundView.trailingAnchor, constant: -Constants.padding),
+            nameLabel.bottomAnchor.constraint(equalTo: colorBackgroundView.bottomAnchor, constant: -Constants.padding),
             
             counterStackView.topAnchor.constraint(equalTo: colorBackgroundView.bottomAnchor),
-            counterStackView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: padding),
-            counterStackView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -padding),
+            counterStackView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: Constants.padding),
+            counterStackView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -Constants.padding),
             
-            plusButton.widthAnchor.constraint(equalToConstant: plusButtonSize),
-            plusButton.heightAnchor.constraint(equalToConstant: plusButtonSize),
-            plusButton.topAnchor.constraint(equalTo: counterStackView.topAnchor, constant: plusButtonPadding),
+            plusButton.widthAnchor.constraint(equalToConstant: Constants.plusButtonSize),
+            plusButton.heightAnchor.constraint(equalToConstant: Constants.plusButtonSize),
+            plusButton.topAnchor.constraint(equalTo: counterStackView.topAnchor, constant: Constants.plusButtonPadding),
         ])
     }
     

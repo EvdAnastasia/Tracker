@@ -11,13 +11,8 @@ protocol TrackersServiceDelegate: AnyObject {
     func reloadTrackers()
 }
 
-final class TrackersService {
-    
-    // MARK: - Public Properties
-    static let shared = TrackersService()
-    weak var delegate: TrackersServiceDelegate?
-    
-    var trackers: [TrackerCategory] = [
+private enum MockData {
+    static let trackers: [TrackerCategory] = [
         TrackerCategory(
             title: "Уборка",
             trackers: [
@@ -62,6 +57,14 @@ final class TrackersService {
         ),
         TrackerCategory(title: "Важное", trackers: [])
     ]
+}
+
+final class TrackersService {
+    
+    // MARK: - Public Properties
+    static let shared = TrackersService()
+    weak var delegate: TrackersServiceDelegate?
+    var trackers: [TrackerCategory] = MockData.trackers
     
     // MARK: - Initializers
     private init() { }

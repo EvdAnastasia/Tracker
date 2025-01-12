@@ -83,14 +83,14 @@ final class TrackerTypeSelectingViewController: UIViewController {
     }
     
     @objc private func habitButtonTapped() {
-        let newHabitViewController = NewHabitViewController()
-        let newHabitNavController = UINavigationController(rootViewController: newHabitViewController)
-        navigationController?.present(newHabitNavController, animated: true)
+        let newViewController = GenericEventViewController(eventType: .habit)
+        let newNavController = UINavigationController(rootViewController: newViewController)
+        navigationController?.present(newNavController, animated: true)
     }
     
     @objc private func irregularEventButtonTapped() {
-        let newIrregularEventViewController = NewIrregularEventViewController()
-        let newIrregularEventNavController = UINavigationController(rootViewController: newIrregularEventViewController)
-        navigationController?.present(newIrregularEventNavController, animated: true)
+        let newViewController = GenericEventViewController(eventType: .irregular)
+        let newNavController = UINavigationController(rootViewController: newViewController)
+        navigationController?.present(newNavController, animated: true)
     }
 }

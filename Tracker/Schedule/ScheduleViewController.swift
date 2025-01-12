@@ -11,6 +11,11 @@ protocol ScheduleViewControllerDelegate: AnyObject {
     func didSelectSchedule(for days: [WeekDay])
 }
 
+private enum Constants {
+    static let cellHeight: CGFloat = 75
+    static let doneButtonHeight: CGFloat = 60
+}
+
 final class ScheduleViewController: UIViewController {
     
     // MARK: - Public Properties
@@ -19,9 +24,6 @@ final class ScheduleViewController: UIViewController {
     // MARK: - Private Properties
     private let weekDays: [WeekDay] = WeekDay.allCases
     private var selectedDays: Set<WeekDay> = []
-    
-    private let cellHeight: CGFloat = 75
-    private let doneButtonHeight: CGFloat = 60
     
     private lazy var scheduleTableView: UITableView = {
         let tableView = UITableView()
@@ -73,19 +75,19 @@ final class ScheduleViewController: UIViewController {
     }
     
     private func setupConstraints() {
-        scheduleTableView.translatesAutoresizingMaskIntoConstraints = false
-        doneButton.translatesAutoresizingMaskIntoConstraints = false
-        
-        view.addSubview(scheduleTableView)
-        view.addSubview(doneButton)
+        [scheduleTableView,
+         doneButton].forEach {
+            $0.translatesAutoresizingMaskIntoConstraints = false
+            view.addSubview($0)
+        }
         
         NSLayoutConstraint.activate([
             scheduleTableView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 16),
             scheduleTableView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
             scheduleTableView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
-            scheduleTableView.heightAnchor.constraint(equalToConstant: cellHeight * CGFloat(weekDays.count)),
+            scheduleTableView.heightAnchor.constraint(equalToConstant: Constants.cellHeight * CGFloat(weekDays.count)),
             
-            doneButton.heightAnchor.constraint(equalToConstant: doneButtonHeight),
+            doneButton.heightAnchor.constraint(equalToConstant: Constants.doneButtonHeight),
             doneButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
             doneButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
             doneButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -16),
@@ -112,11 +114,17 @@ extension ScheduleViewController: ScheduleTableViewCellDelegate {
 }
 
 extension ScheduleViewController: UITableViewDataSource {
-    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+    func tableView(
+        _ tableView: UITableView,
+        numberOfRowsInSection section: Int
+    ) -> Int {
         weekDays.count
     }
     
-    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+    func tableView(
+        _ tableView: UITableView,
+        cellForRowAt indexPath: IndexPath
+    ) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: ScheduleTableViewCell.reuseIdentifier, for: indexPath)
         
         guard let scheduleCell = cell as? ScheduleTableViewCell else { return UITableViewCell() }

@@ -1,5 +1,5 @@
 //
-//  NewIrregularEventViewController.swift
+//  GenericEventViewController.swift
 //  Tracker
 //
 //  Created by Anastasiia on 20.12.2024.
@@ -7,29 +7,43 @@
 
 import UIKit
 
-final class NewIrregularEventViewController: UIViewController {
-    
+enum EventType {
+    case habit
+    case irregular
+}
+
+private enum MockData {
+    static let categoryName = "Важное"
+}
+
+private enum Constants {
+    static let nameTextLimit = 38
+    static let nameFieldHeight: CGFloat = 75
+    static let habitOptionsTableViewRowHeight: CGFloat = 75
+    static let habitOptionsTableViewHeight: CGFloat = 75
+    static let buttonsStackViewHeight: CGFloat = 60
+    static let nameFieldPadding: UIEdgeInsets = .init(top: 0, left: 16, bottom: 0, right: 45)
+}
+
+final class GenericEventViewController: UIViewController {
     // MARK: - Private Properties
-    private var categoryName: String? = "Важное" // моковые данные, далее необходимо убрать после реализации создания категории
-    private let reuseIdentifier = "IrregularEventOptionCell"
-    private let habitOptions: [String] = ["Категория"]
+    private var eventType: EventType
     private let trackersService = TrackersService.shared
+    private var selectedDays: [WeekDay] = []
+    private var habitOptions: [String] = []
+    private var reuseIdentifier: String = ""
+    private var navigationTitle: String = ""
+    private var habitOptionsTableViewHeight = Constants.habitOptionsTableViewHeight
     
-    private let nameTextLimit = 38
-    private let nameFieldHeight: CGFloat = 75
-    private let habitOptionsTableViewHeight: CGFloat = 75
-    private let habitOptionsTableViewRowHeight: CGFloat = 75
-    private let buttonsStackViewHeight: CGFloat = 60
-    private let nameFieldPadding: UIEdgeInsets = .init(top: 0, left: 16, bottom: 0, right: 45)
-    
-    lazy var nameField: UITextField = {
-        let textField = CustomTextField(padding: nameFieldPadding)
+    private lazy var nameField: UITextField = {
+        let textField = CustomTextField(padding: Constants.nameFieldPadding)
         textField.backgroundColor = .ypLightGray
         textField.layer.cornerRadius = 16
         textField.placeholder = "Введите название трекера"
         textField.font = UIFont.systemFont(ofSize: 17, weight: .regular)
         textField.textColor = .ypBlack
         textField.delegate = self
+        textField.translatesAutoresizingMaskIntoConstraints = false
         textField.clearButtonMode = .whileEditing
         textField.addTarget(self, action: #selector(nameFieldDidChange), for: .editingChanged)
         return textField
@@ -37,11 +51,12 @@ final class NewIrregularEventViewController: UIViewController {
     
     private lazy var cautionLabel: UILabel = {
         let label = UILabel()
-        label.text = "Ограничение \(nameTextLimit) символов"
+        label.text = "Ограничение \(Constants.nameTextLimit) символов"
         label.textColor = .ypRed
         label.textAlignment = .center
         label.font = UIFont.systemFont(ofSize: 17, weight: .regular)
         label.isHidden = true
+        label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
     
@@ -57,7 +72,7 @@ final class NewIrregularEventViewController: UIViewController {
         tableView.register(UITableViewCell.self, forCellReuseIdentifier: reuseIdentifier)
         tableView.backgroundColor = .ypLightGray
         tableView.layer.cornerRadius = 16
-        tableView.rowHeight = habitOptionsTableViewRowHeight
+        tableView.rowHeight = Constants.habitOptionsTableViewRowHeight
         tableView.isScrollEnabled = false
         tableView.dataSource = self
         tableView.delegate = self
@@ -104,47 +119,69 @@ final class NewIrregularEventViewController: UIViewController {
         return gesture
     }()
     
+    // MARK: - Initializers
+    init(eventType: EventType) {
+        self.eventType = eventType
+        super.init(nibName: nil, bundle: nil)
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
     // MARK: - Overrides Methods
     override func viewDidLoad() {
         super.viewDidLoad()
         
         configureView()
+        configureUI()
         setupConstraints()
     }
     
     // MARK: - Private Methods
-    private func updateCreateButtonState() {
-        if let name = nameField.text, !name.isEmpty {
-            createButton.backgroundColor = .ypBlack
-            createButton.isEnabled = true
-        } else {
-            createButton.backgroundColor = .ypGray
-            createButton.isEnabled = false
+    private func configureView() {
+        view.backgroundColor = .ypWhite
+        navigationItem.title = navigationTitle
+    }
+    
+    private func configureUI() {
+        switch eventType {
+        case .habit:
+            reuseIdentifier = "HabitOptionCell"
+            habitOptions = ["Категория", "Расписание"]
+            habitOptionsTableViewHeight = 150
+            navigationTitle = "Новая привычка"
+        case .irregular:
+            reuseIdentifier = "IrregularEventOptionCell"
+            habitOptions = ["Категория"]
+            habitOptionsTableViewHeight = 75
+            navigationTitle = "Новое нерегулярное событие"
         }
     }
     
-    private func configureView() {
-        view.backgroundColor = .ypWhite
-        navigationItem.title = "Новое нерегулярное событие"
+    private func updateCreateButtonState() {
+        let notEmpty = nameField.text?.isEmpty == false &&
+        eventType == EventType.habit ? !selectedDays.isEmpty : true
+        
+        createButton.backgroundColor = notEmpty ? .ypBlack : .ypGray
+        createButton.isEnabled = notEmpty
     }
     
     private func setupConstraints() {
-        nameFieldStackView.translatesAutoresizingMaskIntoConstraints = false
-        nameField.translatesAutoresizingMaskIntoConstraints = false
-        cautionLabel.translatesAutoresizingMaskIntoConstraints = false
-        habitOptionsTableView.translatesAutoresizingMaskIntoConstraints = false
-        buttonsStackView.translatesAutoresizingMaskIntoConstraints = false
+        [nameFieldStackView,
+         habitOptionsTableView,
+         buttonsStackView].forEach {
+            $0.translatesAutoresizingMaskIntoConstraints = false
+            view.addSubview($0)
+        }
         
-        view.addSubview(nameFieldStackView)
-        view.addSubview(habitOptionsTableView)
-        view.addSubview(buttonsStackView)
         view.addGestureRecognizer(tapGesture)
         
         NSLayoutConstraint.activate([
             nameFieldStackView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 24),
             nameFieldStackView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
             nameFieldStackView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
-            nameField.heightAnchor.constraint(equalToConstant: nameFieldHeight),
+            nameField.heightAnchor.constraint(equalToConstant: Constants.nameFieldHeight),
             
             habitOptionsTableView.topAnchor.constraint(equalTo: nameFieldStackView.bottomAnchor, constant: 24),
             habitOptionsTableView.leadingAnchor.constraint(equalTo: nameFieldStackView.leadingAnchor),
@@ -153,9 +190,17 @@ final class NewIrregularEventViewController: UIViewController {
             
             buttonsStackView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
             buttonsStackView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
-            buttonsStackView.heightAnchor.constraint(equalToConstant: buttonsStackViewHeight),
+            buttonsStackView.heightAnchor.constraint(equalToConstant: Constants.buttonsStackViewHeight),
             buttonsStackView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor)
         ])
+    }
+    
+    private func showScheduleViewController() {
+        let days = Set(selectedDays)
+        let scheduleViewController = ScheduleViewController(selectedDays: days)
+        scheduleViewController.delegate = self
+        let scheduleNavController = UINavigationController(rootViewController: scheduleViewController)
+        navigationController?.present(scheduleNavController, animated: true)
     }
     
     @objc private func nameFieldDidChange() {
@@ -167,18 +212,20 @@ final class NewIrregularEventViewController: UIViewController {
     }
     
     @objc private func createButtonTapped() {
-        guard let title = nameField.text, let categoryName else { return }
+        guard let title = nameField.text else { return }
+        let isHabit = eventType == EventType.habit
+        let schedule = isHabit ? selectedDays : []
         
         let newTracker = Tracker(
             id: UUID(),
             title: title,
-            color: .ypColorSelection11,
+            color: .ypColorSelection13,
             emoji: "✅",
-            schedule: [],
-            isHabit: false
+            schedule: schedule,
+            isHabit: isHabit
         )
         
-        trackersService.addTracker(tracker: newTracker, for: categoryName)
+        trackersService.addTracker(tracker: newTracker, for: MockData.categoryName)
         view?.window?.rootViewController?.dismiss(animated: true)
     }
     
@@ -187,22 +234,30 @@ final class NewIrregularEventViewController: UIViewController {
     }
 }
 
-extension NewIrregularEventViewController: UITextFieldDelegate {
+extension GenericEventViewController: ScheduleViewControllerDelegate {
+    func didSelectSchedule(for days: [WeekDay]) {
+        selectedDays = days
+        habitOptionsTableView.reloadData()
+        updateCreateButtonState()
+    }
+}
+
+extension GenericEventViewController: UITextFieldDelegate {
     // механика показа нотификации при превышении лимита символов в текстовом поле
-    func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
+    func textField(
+        _ textField: UITextField,
+        shouldChangeCharactersIn range: NSRange,
+        replacementString string: String
+    ) -> Bool {
         let currentText = textField.text ?? ""
         
         // Вычисляем количество символов после изменения
         guard let stringRange = Range(range, in: currentText) else { return false }
         let updatedText = currentText.replacingCharacters(in: stringRange, with: string)
         
-        if updatedText.count >= nameTextLimit {
-            cautionLabel.isHidden = false
-            return false
-        } else {
-            cautionLabel.isHidden = true
-            return true
-        }
+        let moreThanLimit = updatedText.count > Constants.nameTextLimit
+        cautionLabel.isHidden = !moreThanLimit
+        return !moreThanLimit
     }
     
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
@@ -211,12 +266,18 @@ extension NewIrregularEventViewController: UITextFieldDelegate {
     }
 }
 
-extension NewIrregularEventViewController: UITableViewDataSource {
-    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+extension GenericEventViewController: UITableViewDataSource {
+    func tableView(
+        _ tableView: UITableView,
+        numberOfRowsInSection section: Int
+    ) -> Int {
         habitOptions.count
     }
     
-    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+    func tableView(
+        _ tableView: UITableView,
+        cellForRowAt indexPath: IndexPath
+    ) -> UITableViewCell {
         let cell = UITableViewCell(style: .subtitle, reuseIdentifier: reuseIdentifier)
         cell.textLabel?.text = habitOptions[indexPath.row]
         cell.accessoryType = .disclosureIndicator
@@ -232,20 +293,41 @@ extension NewIrregularEventViewController: UITableViewDataSource {
         }
         
         let option = habitOptions[indexPath.row]
-        if option == "Категория" {
-            cell.detailTextLabel?.text = categoryName
-        }
+        configureDetailText(for: cell, with: option)
         
         return cell
     }
+    
+    private func configureDetailText(
+        for cell: UITableViewCell,
+        with option: String
+    ) {
+        if option == "Категория" {
+            cell.detailTextLabel?.text = MockData.categoryName
+        } else if option == "Расписание" && !selectedDays.isEmpty {
+            if selectedDays.count == 7 {
+                cell.detailTextLabel?.text = "Каждый день"
+            } else {
+                var titleDays: [String] = []
+                for day in selectedDays {
+                    titleDays.append(day.getShortDayName())
+                    cell.detailTextLabel?.text = titleDays.joined(separator: ", ")
+                }
+            }
+        }
+    }
 }
 
-extension NewIrregularEventViewController: UITableViewDelegate {
-    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+extension GenericEventViewController: UITableViewDelegate {
+    func tableView(
+        _ tableView: UITableView,
+        didSelectRowAt indexPath: IndexPath
+    ) {
         let option = habitOptions[indexPath.row]
         if option == "Категория" {
-            // TODO: Добавить механику создания категории
-            print("Открыть стр категория")
+            // TODO: - Реализовать логику перехода на экран Категорий
+        } else if option == "Расписание" {
+            showScheduleViewController()
         }
     }
 }

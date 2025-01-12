@@ -63,11 +63,11 @@ final class ScheduleTableViewCell: UITableViewCell {
     }
     
     private func setupConstraints() {
-        dayLabel.translatesAutoresizingMaskIntoConstraints = false
-        daySwitchControl.translatesAutoresizingMaskIntoConstraints = false
-        
-        contentView.addSubview(dayLabel)
-        contentView.addSubview(daySwitchControl)
+        [dayLabel,
+         daySwitchControl].forEach {
+            $0.translatesAutoresizingMaskIntoConstraints = false
+            contentView.addSubview($0)
+        }
         
         NSLayoutConstraint.activate([
             dayLabel.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 22),
