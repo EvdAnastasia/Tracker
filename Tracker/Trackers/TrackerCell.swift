@@ -12,14 +12,6 @@ protocol TrackerCellDelegate: AnyObject {
     func uncompleteTracker(id: UUID, at indexPath: IndexPath)
 }
 
-private enum Constants {
-    static let colorBackgroundViewHeight: CGFloat = 90
-    static let emojiBackgroundViewSize: CGFloat = 24
-    static let padding: CGFloat = 12
-    static let plusButtonSize: CGFloat = 34
-    static let plusButtonPadding: CGFloat = 8
-}
-
 final class TrackerCell: UICollectionViewCell {
     
     // MARK: - Public Properties
@@ -116,17 +108,13 @@ final class TrackerCell: UICollectionViewCell {
         let wordDay = pluralizeDays(completedDays)
         сounterLabel.text = "\(wordDay)"
         
-        if isFutureTracker {
-            plusButton.isHidden = true
-        } else {
-            plusButton.isHidden = false
-            let image = isCompletedToday ?
-            UIImage(named: "DoneIcon")?.withRenderingMode(.alwaysTemplate) :
-            UIImage(named: "PlusIcon")?.withRenderingMode(.alwaysTemplate)
-            plusButton.setImage(image, for: .normal)
-            plusButton.tintColor = color
-            plusButton.alpha = isCompletedToday ?  0.3 : 1
-        }
+        plusButton.isEnabled = !isFutureTracker
+        let image = isCompletedToday ?
+        UIImage(named: "DoneIcon")?.withRenderingMode(.alwaysTemplate) :
+        UIImage(named: "PlusIcon")?.withRenderingMode(.alwaysTemplate)
+        plusButton.setImage(image, for: .normal)
+        plusButton.tintColor = color
+        plusButton.alpha = isCompletedToday ?  0.3 : 1
     }
     
     // MARK: - Private Methods
@@ -157,28 +145,28 @@ final class TrackerCell: UICollectionViewCell {
         NSLayoutConstraint.activate([
             colorBackgroundView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
             colorBackgroundView.topAnchor.constraint(equalTo: contentView.topAnchor),
-            colorBackgroundView.heightAnchor.constraint(equalToConstant: Constants.colorBackgroundViewHeight),
+            colorBackgroundView.heightAnchor.constraint(equalToConstant: TrackerCellConstants.colorBackgroundViewHeight),
             colorBackgroundView.widthAnchor.constraint(equalTo: contentView.widthAnchor),
             
-            emojiBackgroundView.widthAnchor.constraint(equalToConstant: Constants.emojiBackgroundViewSize),
-            emojiBackgroundView.heightAnchor.constraint(equalToConstant: Constants.emojiBackgroundViewSize),
-            emojiBackgroundView.leadingAnchor.constraint(equalTo: colorBackgroundView.leadingAnchor, constant: Constants.padding),
-            emojiBackgroundView.topAnchor.constraint(equalTo: colorBackgroundView.topAnchor, constant: Constants.padding),
+            emojiBackgroundView.widthAnchor.constraint(equalToConstant: TrackerCellConstants.emojiBackgroundViewSize),
+            emojiBackgroundView.heightAnchor.constraint(equalToConstant: TrackerCellConstants.emojiBackgroundViewSize),
+            emojiBackgroundView.leadingAnchor.constraint(equalTo: colorBackgroundView.leadingAnchor, constant: TrackerCellConstants.padding),
+            emojiBackgroundView.topAnchor.constraint(equalTo: colorBackgroundView.topAnchor, constant: TrackerCellConstants.padding),
             
             emojiLabel.centerXAnchor.constraint(equalTo: emojiBackgroundView.centerXAnchor),
             emojiLabel.centerYAnchor.constraint(equalTo: emojiBackgroundView.centerYAnchor),
             
-            nameLabel.leadingAnchor.constraint(equalTo: colorBackgroundView.leadingAnchor, constant: Constants.padding),
-            nameLabel.trailingAnchor.constraint(equalTo: colorBackgroundView.trailingAnchor, constant: -Constants.padding),
-            nameLabel.bottomAnchor.constraint(equalTo: colorBackgroundView.bottomAnchor, constant: -Constants.padding),
+            nameLabel.leadingAnchor.constraint(equalTo: colorBackgroundView.leadingAnchor, constant: TrackerCellConstants.padding),
+            nameLabel.trailingAnchor.constraint(equalTo: colorBackgroundView.trailingAnchor, constant: -TrackerCellConstants.padding),
+            nameLabel.bottomAnchor.constraint(equalTo: colorBackgroundView.bottomAnchor, constant: -TrackerCellConstants.padding),
             
             counterStackView.topAnchor.constraint(equalTo: colorBackgroundView.bottomAnchor),
-            counterStackView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: Constants.padding),
-            counterStackView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -Constants.padding),
+            counterStackView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: TrackerCellConstants.padding),
+            counterStackView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -TrackerCellConstants.padding),
             
-            plusButton.widthAnchor.constraint(equalToConstant: Constants.plusButtonSize),
-            plusButton.heightAnchor.constraint(equalToConstant: Constants.plusButtonSize),
-            plusButton.topAnchor.constraint(equalTo: counterStackView.topAnchor, constant: Constants.plusButtonPadding),
+            plusButton.widthAnchor.constraint(equalToConstant: TrackerCellConstants.plusButtonSize),
+            plusButton.heightAnchor.constraint(equalToConstant: TrackerCellConstants.plusButtonSize),
+            plusButton.topAnchor.constraint(equalTo: counterStackView.topAnchor, constant: TrackerCellConstants.plusButtonPadding),
         ])
     }
     

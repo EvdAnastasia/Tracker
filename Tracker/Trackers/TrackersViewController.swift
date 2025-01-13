@@ -7,10 +7,6 @@
 
 import UIKit
 
-private enum Constants {
-    static let cellHeight: CGFloat = 148
-}
-
 final class TrackersViewController: UIViewController {
     
     // MARK: - Private Properties
@@ -102,7 +98,6 @@ final class TrackersViewController: UIViewController {
     
     private lazy var tapGesture: UITapGestureRecognizer = {
         let gesture = UITapGestureRecognizer(target: self, action: #selector(hideKeyboard))
-        gesture.cancelsTouchesInView = false
         return gesture
     }()
     
@@ -295,7 +290,7 @@ extension TrackersViewController: UICollectionViewDelegateFlowLayout {
         layout collectionViewLayout: UICollectionViewLayout,
         sizeForItemAt indexPath: IndexPath
     ) -> CGSize {
-        return CGSize(width: (collectionView.bounds.width - 9)/2, height: Constants.cellHeight)
+        return CGSize(width: (collectionView.bounds.width - 9)/2, height: TrackerCellConstants.cellHeight)
     }
     
     // расстояние между ячейками

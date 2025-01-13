@@ -7,24 +7,6 @@
 
 import UIKit
 
-enum EventType {
-    case habit
-    case irregular
-}
-
-private enum MockData {
-    static let categoryName = "Важное"
-}
-
-private enum Constants {
-    static let nameTextLimit = 38
-    static let nameFieldHeight: CGFloat = 75
-    static let habitOptionsTableViewRowHeight: CGFloat = 75
-    static let habitOptionsTableViewHeight: CGFloat = 75
-    static let buttonsStackViewHeight: CGFloat = 60
-    static let nameFieldPadding: UIEdgeInsets = .init(top: 0, left: 16, bottom: 0, right: 45)
-}
-
 final class GenericEventViewController: UIViewController {
     // MARK: - Private Properties
     private var eventType: EventType
@@ -33,10 +15,10 @@ final class GenericEventViewController: UIViewController {
     private var habitOptions: [String] = []
     private var reuseIdentifier: String = ""
     private var navigationTitle: String = ""
-    private var habitOptionsTableViewHeight = Constants.habitOptionsTableViewHeight
+    private var habitOptionsTableViewHeight = GenericEventConstants.habitOptionsTableViewHeight
     
     private lazy var nameField: UITextField = {
-        let textField = CustomTextField(padding: Constants.nameFieldPadding)
+        let textField = CustomTextField(padding: GenericEventConstants.nameFieldPadding)
         textField.backgroundColor = .ypLightGray
         textField.layer.cornerRadius = 16
         textField.placeholder = "Введите название трекера"
@@ -51,7 +33,7 @@ final class GenericEventViewController: UIViewController {
     
     private lazy var cautionLabel: UILabel = {
         let label = UILabel()
-        label.text = "Ограничение \(Constants.nameTextLimit) символов"
+        label.text = "Ограничение \(GenericEventConstants.nameTextLimit) символов"
         label.textColor = .ypRed
         label.textAlignment = .center
         label.font = UIFont.systemFont(ofSize: 17, weight: .regular)
@@ -72,7 +54,7 @@ final class GenericEventViewController: UIViewController {
         tableView.register(UITableViewCell.self, forCellReuseIdentifier: reuseIdentifier)
         tableView.backgroundColor = .ypLightGray
         tableView.layer.cornerRadius = 16
-        tableView.rowHeight = Constants.habitOptionsTableViewRowHeight
+        tableView.rowHeight = GenericEventConstants.habitOptionsTableViewRowHeight
         tableView.isScrollEnabled = false
         tableView.dataSource = self
         tableView.delegate = self
@@ -181,7 +163,7 @@ final class GenericEventViewController: UIViewController {
             nameFieldStackView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 24),
             nameFieldStackView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
             nameFieldStackView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
-            nameField.heightAnchor.constraint(equalToConstant: Constants.nameFieldHeight),
+            nameField.heightAnchor.constraint(equalToConstant: GenericEventConstants.nameFieldHeight),
             
             habitOptionsTableView.topAnchor.constraint(equalTo: nameFieldStackView.bottomAnchor, constant: 24),
             habitOptionsTableView.leadingAnchor.constraint(equalTo: nameFieldStackView.leadingAnchor),
@@ -190,7 +172,7 @@ final class GenericEventViewController: UIViewController {
             
             buttonsStackView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
             buttonsStackView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
-            buttonsStackView.heightAnchor.constraint(equalToConstant: Constants.buttonsStackViewHeight),
+            buttonsStackView.heightAnchor.constraint(equalToConstant: GenericEventConstants.buttonsStackViewHeight),
             buttonsStackView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor)
         ])
     }
@@ -225,7 +207,7 @@ final class GenericEventViewController: UIViewController {
             isHabit: isHabit
         )
         
-        trackersService.addTracker(tracker: newTracker, for: MockData.categoryName)
+        trackersService.addTracker(tracker: newTracker, for: GenericEventMockData.categoryName)
         view?.window?.rootViewController?.dismiss(animated: true)
     }
     
@@ -255,7 +237,7 @@ extension GenericEventViewController: UITextFieldDelegate {
         guard let stringRange = Range(range, in: currentText) else { return false }
         let updatedText = currentText.replacingCharacters(in: stringRange, with: string)
         
-        let moreThanLimit = updatedText.count > Constants.nameTextLimit
+        let moreThanLimit = updatedText.count > GenericEventConstants.nameTextLimit
         cautionLabel.isHidden = !moreThanLimit
         return !moreThanLimit
     }
@@ -303,7 +285,7 @@ extension GenericEventViewController: UITableViewDataSource {
         with option: String
     ) {
         if option == "Категория" {
-            cell.detailTextLabel?.text = MockData.categoryName
+            cell.detailTextLabel?.text = GenericEventMockData.categoryName
         } else if option == "Расписание" && !selectedDays.isEmpty {
             if selectedDays.count == 7 {
                 cell.detailTextLabel?.text = "Каждый день"

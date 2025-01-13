@@ -11,60 +11,12 @@ protocol TrackersServiceDelegate: AnyObject {
     func reloadTrackers()
 }
 
-private enum MockData {
-    static let trackers: [TrackerCategory] = [
-        TrackerCategory(
-            title: "Уборка",
-            trackers: [
-                Tracker(
-                    id: UUID(),
-                    title: "Помыть полы",
-                    color: .ypColorSelection5,
-                    emoji: "💦",
-                    schedule: [.monday, .wednesday, .friday, .sunday],
-                    isHabit: true
-                ),
-                Tracker(
-                    id: UUID(),
-                    title: "Протереть пыль",
-                    color: .ypColorSelection8,
-                    emoji: "💪",
-                    schedule: [],
-                    isHabit: false
-                )
-            ]
-        ),
-        TrackerCategory(
-            title: "Работа",
-            trackers: [
-                Tracker(
-                    id: UUID(),
-                    title: "Сделать таску",
-                    color: .ypColorSelection12,
-                    emoji: "📝",
-                    schedule: [.monday, .tuersday, .wednesday, .thursday, .friday, .sunday],
-                    isHabit: true
-                ),
-                Tracker(
-                    id: UUID(),
-                    title: "Отправить ПР",
-                    color: .ypColorSelection16,
-                    emoji: "✅",
-                    schedule: [.friday],
-                    isHabit: true
-                )
-            ]
-        ),
-        TrackerCategory(title: "Важное", trackers: [])
-    ]
-}
-
 final class TrackersService {
     
     // MARK: - Public Properties
     static let shared = TrackersService()
     weak var delegate: TrackersServiceDelegate?
-    var trackers: [TrackerCategory] = MockData.trackers
+    var trackers: [TrackerCategory] = TrackersServiceMockData.trackers
     
     // MARK: - Initializers
     private init() { }

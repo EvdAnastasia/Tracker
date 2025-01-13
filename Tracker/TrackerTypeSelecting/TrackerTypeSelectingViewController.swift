@@ -10,9 +10,6 @@ import UIKit
 final class TrackerTypeSelectingViewController: UIViewController {
     
     // MARK: - Private Properties
-    private let buttonHeight: CGFloat = 60
-    private let stackViewPadding: CGFloat = 20
-    
     private lazy var habitButton: UIButton = {
         let button = UIButton(type: .system)
         button.setTitle("Привычка", for: .normal)
@@ -68,15 +65,15 @@ final class TrackerTypeSelectingViewController: UIViewController {
         view.addSubview(buttonsStackView)
         
         NSLayoutConstraint.activate([
-            buttonsStackView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: stackViewPadding),
-            buttonsStackView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -stackViewPadding),
+            buttonsStackView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: TrackerTypeSelectingConstants.stackViewPadding),
+            buttonsStackView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -TrackerTypeSelectingConstants.stackViewPadding),
             buttonsStackView.centerYAnchor.constraint(equalTo: view.centerYAnchor),
             
-            habitButton.heightAnchor.constraint(equalToConstant: buttonHeight),
+            habitButton.heightAnchor.constraint(equalToConstant: TrackerTypeSelectingConstants.buttonHeight),
             habitButton.leadingAnchor.constraint(equalTo: buttonsStackView.leadingAnchor),
             habitButton.trailingAnchor.constraint(equalTo: buttonsStackView.trailingAnchor),
             
-            irregularEventButton.heightAnchor.constraint(equalToConstant: buttonHeight),
+            irregularEventButton.heightAnchor.constraint(equalToConstant: TrackerTypeSelectingConstants.buttonHeight),
             irregularEventButton.leadingAnchor.constraint(equalTo: buttonsStackView.leadingAnchor),
             irregularEventButton.trailingAnchor.constraint(equalTo: buttonsStackView.trailingAnchor)
         ])

@@ -11,11 +11,6 @@ protocol ScheduleViewControllerDelegate: AnyObject {
     func didSelectSchedule(for days: [WeekDay])
 }
 
-private enum Constants {
-    static let cellHeight: CGFloat = 75
-    static let doneButtonHeight: CGFloat = 60
-}
-
 final class ScheduleViewController: UIViewController {
     
     // MARK: - Public Properties
@@ -85,9 +80,9 @@ final class ScheduleViewController: UIViewController {
             scheduleTableView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 16),
             scheduleTableView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
             scheduleTableView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
-            scheduleTableView.heightAnchor.constraint(equalToConstant: Constants.cellHeight * CGFloat(weekDays.count)),
+            scheduleTableView.heightAnchor.constraint(equalToConstant: ScheduleConstants.cellHeight * CGFloat(weekDays.count)),
             
-            doneButton.heightAnchor.constraint(equalToConstant: Constants.doneButtonHeight),
+            doneButton.heightAnchor.constraint(equalToConstant: ScheduleConstants.doneButtonHeight),
             doneButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
             doneButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
             doneButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -16),
