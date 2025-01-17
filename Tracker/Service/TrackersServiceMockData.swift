@@ -38,7 +38,7 @@ enum TrackersServiceMockData {
                     title: "Сделать таску",
                     color: .ypColorSelection12,
                     emoji: "📝",
-                    schedule: [.monday, .tuersday, .wednesday, .thursday, .friday, .sunday],
+                    schedule: [.monday, .tuesday, .wednesday, .thursday, .friday, .sunday],
                     isHabit: true
                 ),
                 Tracker(
