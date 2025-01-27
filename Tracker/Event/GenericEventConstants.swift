@@ -14,7 +14,7 @@ enum GenericEventConstants {
     static let habitOptionsTableViewHeight: CGFloat = 75
     static let buttonsStackViewHeight: CGFloat = 60
     static let nameFieldPadding: UIEdgeInsets = .init(top: 0, left: 16, bottom: 0, right: 45)
-    static let collectionViewInset: CGFloat = 18
+    static let collectionViewInset: CGFloat = 19
     static let collectionViewInsetLarge: CGFloat = 24
     static let collectionViewCellSpacing: CGFloat = 5
     static let collectionViewCellCountForRow = 6

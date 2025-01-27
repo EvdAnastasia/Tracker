@@ -65,7 +65,9 @@ final class GenericEventViewController: UIViewController {
     }()
     
     private lazy var habitStyleCollectionView: UICollectionView = {
-        let collectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout())
+        let layout = UICollectionViewFlowLayout()
+        layout.minimumLineSpacing = 0
+        let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
         collectionView.register(
             StyleCell.self,
             forCellWithReuseIdentifier: GenericEventConstants.styleCellReuseIdentifier
@@ -189,12 +191,11 @@ final class GenericEventViewController: UIViewController {
     private func calculateCollectionHeight() -> CGFloat {
         let headerHeight = GenericEventConstants.collectionViewHeaderHeight
         let cellSize = GenericEventConstants.collectionViewCellSize
-        let cellSpacing = GenericEventConstants.collectionViewCellSpacing
         let rowCountForSection = GenericEventConstants.collectionViewRowCountForSection
         let inset = GenericEventConstants.collectionViewInsetLarge
         let sections = TrackerStyleSections.allCases.count
         
-        let sectionHeight = headerHeight + (CGFloat(rowCountForSection) * (cellSize + cellSpacing)) + inset * 2
+        let sectionHeight = headerHeight + (CGFloat(rowCountForSection) * cellSize) + inset * 2
         let collectionHeight = sectionHeight * CGFloat(sections)
         return collectionHeight
     }
@@ -283,7 +284,9 @@ final class GenericEventViewController: UIViewController {
             isHabit: isHabit
         )
         
-        trackersService.addTracker(tracker: newTracker, for: GenericEventMockData.categoryName)
+        // TODO: - Удалить после добавления экрана "Создание категории"
+        trackersService.addCategory(name: GenericEventMockData.categoryName)
+        trackersService.addTracker(newTracker, to: GenericEventMockData.categoryName)
         view?.window?.rootViewController?.dismiss(animated: true)
     }
     

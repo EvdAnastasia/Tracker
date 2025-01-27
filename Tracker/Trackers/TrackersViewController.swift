@@ -105,6 +105,7 @@ final class TrackersViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         trackersService.delegate = self
+        completedTrackers = trackersService.fetchRecords()
         reloadData()
         configureView()
         setupConstraints()
@@ -112,7 +113,7 @@ final class TrackersViewController: UIViewController {
     
     // MARK: - Private Methods
     private func reloadData() {
-        categories = trackersService.trackers
+        categories = trackersService.fetchCategories()
         dateChanged()
     }
     
@@ -314,17 +315,20 @@ extension TrackersViewController: UICollectionViewDelegateFlowLayout {
 
 extension TrackersViewController: TrackerCellDelegate {
     func completeTracker(id: UUID, at indexPath: IndexPath) {
-        let trackerRecord = TrackerRecord(trackerId: id, date: currentDate)
-        completedTrackers.append(trackerRecord)
+        let startOfDay = Calendar.current.startOfDay(for: currentDate)
+        let trackerRecord = TrackerRecord(trackerId: id, date: startOfDay)
         
+        trackersService.addRecord(trackerRecord)
+        completedTrackers = trackersService.fetchRecords()
         trackersCollectionView.reloadItems(at: [indexPath])
     }
     
     func uncompleteTracker(id: UUID, at indexPath: IndexPath) {
-        completedTrackers.removeAll { trackerRecord in
-            isSameTrackerRecord(trackerRecord: trackerRecord, id: id)
-        }
+        let startOfDay = Calendar.current.startOfDay(for: currentDate)
+        let trackerRecord = TrackerRecord(trackerId: id, date: startOfDay)
         
+        trackersService.deleteRecord(trackerRecord)
+        completedTrackers = trackersService.fetchRecords()
         trackersCollectionView.reloadItems(at: [indexPath])
     }
 }

@@ -16,21 +16,44 @@ final class TrackersService {
     // MARK: - Public Properties
     static let shared = TrackersService()
     weak var delegate: TrackersServiceDelegate?
-    var trackers: [TrackerCategory] = TrackersServiceMockData.trackers
+    
+    // MARK: - Private Properties
+    private var trackerCategoryStore = TrackerCategoryStore.shared
+    private var trackerRecordStore = TrackerRecordStore.shared
     
     // MARK: - Initializers
-    private init() { }
+    private init() {
+        trackerCategoryStore.delegate = self
+    }
     
     // MARK: - Public Methods
-    func addTracker(tracker: Tracker, for category: String) {
-        if let categoryIndex = trackers.firstIndex(where: { $0.title == category }) {
-            let currentCategory = trackers[categoryIndex]
-            let newCategory = TrackerCategory(title: currentCategory.title,
-                                              trackers: currentCategory.trackers + [tracker])
-            
-            trackers[categoryIndex] = newCategory
-        }
-        
+    func fetchCategories() -> [TrackerCategory] {
+        trackerCategoryStore.fetchCategories()
+    }
+    
+    func fetchRecords() -> [TrackerRecord] {
+        trackerRecordStore.fetchRecords()
+    }
+    
+    func addCategory(name: String) {
+        trackerCategoryStore.addCategory(name)
+    }
+    
+    func addTracker(_ tracker: Tracker, to category: String) {
+        trackerCategoryStore.addTracker(tracker, to: category)
+    }
+    
+    func addRecord(_ record: TrackerRecord) {
+        trackerRecordStore.addRecord(record)
+    }
+    
+    func deleteRecord(_ record: TrackerRecord) {
+        trackerRecordStore.deleteRecord(record)
+    }
+}
+
+extension TrackersService: TrackerCategoryStoreDelegate {
+    func categoriesHaveChanged() {
         delegate?.reloadTrackers()
     }
 }
