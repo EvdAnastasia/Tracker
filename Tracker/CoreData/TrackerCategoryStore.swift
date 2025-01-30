@@ -76,7 +76,6 @@ final class TrackerCategoryStore: NSObject {
     }
     
     func addCategory(_ name: String) {
-        // проверяем есть ли уже такая категория
         let category = fetchedResultsController.fetchedObjects?.first(where: {$0.title == name})
         
         if category == nil {

@@ -19,7 +19,6 @@ final class TrackerStore {
     
     // MARK: - Private Properties
     private let coreDataManager = CoreDataManager.shared
-    private let colorMarshalling = UIColorMarshalling()
     private let weekDaysConverter = WeekDaysConverter()
     
     // MARK: - Initializers
@@ -30,7 +29,7 @@ final class TrackerStore {
         let trackerCoreData = TrackerCoreData(context: coreDataManager.context)
         trackerCoreData.id = tracker.id
         trackerCoreData.title = tracker.title
-        trackerCoreData.color = colorMarshalling.hexString(from: tracker.color)
+        trackerCoreData.color = UIColorMarshalling.hexString(from: tracker.color)
         trackerCoreData.emoji = tracker.emoji
         trackerCoreData.schedule = weekDaysConverter.convertToString(from: tracker.schedule)
         trackerCoreData.isHabit = tracker.isHabit
@@ -51,7 +50,7 @@ final class TrackerStore {
         return Tracker(
             id: id,
             title: title,
-            color: colorMarshalling.color(from: color),
+            color: UIColorMarshalling.color(from: color),
             emoji: emoji,
             schedule: weekDaysConverter.convertToArray(from: schedule),
             isHabit: trackerCoreData.isHabit
