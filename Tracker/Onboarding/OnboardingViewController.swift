@@ -10,6 +10,8 @@ import UIKit
 final class OnboardingViewController: UIPageViewController {
     
     // MARK: - Private Properties
+    private let userDefaultsService = UserDefaultsService.shared
+    
     private lazy var pages: [UIViewController] = {
         let firstPage = OnboardingPageViewController(
             image: "OnboardingBg 1",
@@ -118,12 +120,16 @@ extension OnboardingViewController: UIPageViewControllerDelegate {
 
 extension OnboardingViewController: OnboardingPageViewControllerDelegate {
     func closeOnboardingPage() {
-        UserDefaults.standard.set(true, forKey: "hasCompletedOnboarding")
+        userDefaultsService.hasCompletedOnboarding = true
         
         guard let window = UIApplication.shared.windows.first else { return }
         let tabBarController = TabBarController()
         
-        UIView.transition(with: window, duration: 0.5, options: .transitionCrossDissolve, animations: {
+        UIView.transition(
+            with: window,
+            duration: 0.5,
+            options: .transitionCrossDissolve,
+            animations: {
             window.rootViewController = tabBarController
         }, completion: { _ in
             window.makeKeyAndVisible()
