@@ -251,6 +251,12 @@ final class GenericEventViewController: UIViewController {
         ])
     }
     
+    private func showCategoriesViewController() {
+        let categoriesViewController = CategoriesViewController()
+        let categoriesNavController = UINavigationController(rootViewController: categoriesViewController)
+        navigationController?.present(categoriesNavController, animated: true)
+    }
+    
     private func showScheduleViewController() {
         let days = Set(selectedDays)
         let scheduleViewController = ScheduleViewController(selectedDays: days)
@@ -385,7 +391,7 @@ extension GenericEventViewController: UITableViewDelegate {
     ) {
         let option = habitOptions[indexPath.row]
         if option == "Категория" {
-            // TODO: - Реализовать логику перехода на экран Категорий
+            showCategoriesViewController()
         } else if option == "Расписание" {
             showScheduleViewController()
         }

@@ -88,6 +88,7 @@ final class ScheduleViewController: UIViewController {
             doneButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -16),
         ])
     }
+    
     @objc
     private func doneButtonTapped() {
         let sortedDay = selectedDays.sorted { $0.rawValue < $1.rawValue }

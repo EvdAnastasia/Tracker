@@ -61,7 +61,6 @@ final class OnboardingPageViewController: UIViewController {
     // MARK: - Overrides Methods
     override func viewDidLoad() {
         super.viewDidLoad()
-        
         setupConstraints()
     }
     
