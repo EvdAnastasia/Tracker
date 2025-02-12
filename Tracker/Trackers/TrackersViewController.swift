@@ -159,8 +159,9 @@ final class TrackersViewController: UIViewController {
     }
     
     private func reloadNoTrackersView() {
-        noTrackersStackView.isHidden = !categories.isEmpty
-        trackersCollectionView.isHidden = categories.isEmpty
+        let isAnyTracker = categories.contains { !$0.trackers.isEmpty }
+        noTrackersStackView.isHidden = isAnyTracker
+        trackersCollectionView.isHidden = !isAnyTracker
     }
     
     private func setupConstraints() {

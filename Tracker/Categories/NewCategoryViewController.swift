@@ -7,7 +7,14 @@
 
 import UIKit
 
+protocol NewCategoryViewControllerDelegate: AnyObject {
+    func createCategory(name: String)
+}
+
 final class NewCategoryViewController: UIViewController {
+    
+    // MARK: - Public Properties
+    weak var delegate: NewCategoryViewControllerDelegate?
     
     // MARK: - Private Properties
     private lazy var nameField: UITextField = {
@@ -26,7 +33,7 @@ final class NewCategoryViewController: UIViewController {
     
     private lazy var cautionLabel: UILabel = {
         let label = UILabel()
-        label.text = "Ограничение \(NewCategoryConstants.nameTextLimit) символов"
+        label.text = "Ограничение \(CategoriesConstants.nameTextLimit) символов"
         label.textColor = .ypRed
         label.textAlignment = .center
         label.font = UIFont.systemFont(ofSize: 17, weight: .regular)
@@ -97,7 +104,7 @@ final class NewCategoryViewController: UIViewController {
             nameFieldStackView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 24),
             nameFieldStackView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
             nameFieldStackView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
-            nameField.heightAnchor.constraint(equalToConstant: NewCategoryConstants.nameFieldHeight),
+            nameField.heightAnchor.constraint(equalToConstant: CategoriesConstants.nameFieldHeight),
             
             addButton.heightAnchor.constraint(equalToConstant: 60),
             addButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
@@ -111,8 +118,9 @@ final class NewCategoryViewController: UIViewController {
     }
     
     @objc private func addButtonTapped() {
-        // создать категорию
-        print("create category")
+        guard let text = nameField.text else { return }
+        delegate?.createCategory(name: text)
+        navigationController?.dismiss(animated: true)
     }
     
     @objc private func hideKeyboard() {

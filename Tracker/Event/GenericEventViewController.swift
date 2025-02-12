@@ -19,6 +19,7 @@ final class GenericEventViewController: UIViewController {
     private var habitOptionsTableViewHeight = GenericEventConstants.habitOptionsTableViewHeight
     private var selectedEmoji: Emoji?
     private var selectedColor: Color?
+    private var selectedCategory: String?
     
     private lazy var nameField: UITextField = {
         let textField = CustomTextField(padding: GenericEventConstants.nameFieldPadding)
@@ -180,6 +181,7 @@ final class GenericEventViewController: UIViewController {
     
     private func updateCreateButtonState() {
         let notEmpty = (nameField.text?.isEmpty == false) &&
+        selectedCategory?.isEmpty == false &&
         (eventType == EventType.habit ? !selectedDays.isEmpty : true) &&
         selectedEmoji?.index != nil &&
         selectedColor?.index != nil
@@ -252,7 +254,12 @@ final class GenericEventViewController: UIViewController {
     }
     
     private func showCategoriesViewController() {
-        let categoriesViewController = CategoriesViewController()
+        let categoriesViewModel = CategoriesViewModel()
+        let categoriesViewController = CategoriesViewController(
+            viewModel: categoriesViewModel,
+            selectedCategory: selectedCategory
+        )
+        categoriesViewController.delegate = self
         let categoriesNavController = UINavigationController(rootViewController: categoriesViewController)
         navigationController?.present(categoriesNavController, animated: true)
     }
@@ -275,6 +282,7 @@ final class GenericEventViewController: UIViewController {
     
     @objc private func createButtonTapped() {
         guard let title = nameField.text,
+        let category = selectedCategory,
         let emoji = selectedEmoji?.emoji,
         let color = selectedColor?.color else { return }
         
@@ -290,9 +298,7 @@ final class GenericEventViewController: UIViewController {
             isHabit: isHabit
         )
         
-        // TODO: - Удалить после добавления экрана "Создание категории"
-        trackersService.addCategory(name: GenericEventMockData.categoryName)
-        trackersService.addTracker(newTracker, to: GenericEventMockData.categoryName)
+        trackersService.addTracker(newTracker, to: category)
         view?.window?.rootViewController?.dismiss(animated: true)
     }
     
@@ -304,6 +310,14 @@ final class GenericEventViewController: UIViewController {
 extension GenericEventViewController: ScheduleViewControllerDelegate {
     func didSelectSchedule(for days: [WeekDay]) {
         selectedDays = days
+        habitOptionsTableView.reloadData()
+        updateCreateButtonState()
+    }
+}
+
+extension GenericEventViewController: CategoriesViewControllerDelegate {
+    func didSelectCategory(_ name: String) {
+        selectedCategory = name
         habitOptionsTableView.reloadData()
         updateCreateButtonState()
     }
@@ -369,7 +383,7 @@ extension GenericEventViewController: UITableViewDataSource {
         with option: String
     ) {
         if option == "Категория" {
-            cell.detailTextLabel?.text = GenericEventMockData.categoryName
+            cell.detailTextLabel?.text = selectedCategory
         } else if option == "Расписание" && !selectedDays.isEmpty {
             if selectedDays.count == 7 {
                 cell.detailTextLabel?.text = "Каждый день"

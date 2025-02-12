@@ -77,7 +77,6 @@ final class TrackerCategoryStore: NSObject {
     
     func addCategory(_ name: String) {
         let category = fetchedResultsController.fetchedObjects?.first(where: {$0.title == name})
-        
         if category == nil {
             let newCategory = TrackerCategoryCoreData(context: coreDataManager.context)
             newCategory.title = name
