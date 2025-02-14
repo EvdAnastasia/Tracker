@@ -17,6 +17,11 @@ final class TrackersService {
     static let shared = TrackersService()
     weak var delegate: TrackersServiceDelegate?
     
+    var categoriesAmount: Int {
+        let categories = fetchCategories()
+        return categories.count
+    }
+    
     // MARK: - Private Properties
     private var trackerCategoryStore = TrackerCategoryStore.shared
     private var trackerRecordStore = TrackerRecordStore.shared
@@ -35,7 +40,7 @@ final class TrackersService {
         trackerRecordStore.fetchRecords()
     }
     
-    func addCategory(name: String) {
+    func addCategory(_ name: String) {
         trackerCategoryStore.addCategory(name)
     }
     
