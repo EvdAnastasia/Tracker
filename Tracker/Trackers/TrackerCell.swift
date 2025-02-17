@@ -56,7 +56,7 @@ final class TrackerCell: UICollectionViewCell {
     
     private lazy var сounterLabel: UILabel = {
         let label = UILabel()
-        label.text = "0 дней"
+        label.text = PluralizeDays.convert(0)
         label.font = .systemFont(ofSize: 12, weight: .medium)
         label.textColor = .ypBlack
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -105,7 +105,7 @@ final class TrackerCell: UICollectionViewCell {
         emojiLabel.text = tracker.emoji
         nameLabel.text = tracker.title
         
-        let wordDay = pluralizeDays(completedDays)
+        let wordDay = PluralizeDays.convert(completedDays)
         сounterLabel.text = "\(wordDay)"
         
         plusButton.isEnabled = !isFutureTracker
@@ -118,19 +118,6 @@ final class TrackerCell: UICollectionViewCell {
     }
     
     // MARK: - Private Methods
-    private func pluralizeDays(_ count: Int) -> String {
-        let remainder10 = count % 10
-        let remainder100 = count % 100
-        
-        if remainder10 == 1 && remainder100 != 11 {
-            return "\(count) день"
-        } else if remainder10 >= 2 && remainder10 <= 4 && (remainder100 < 10 || remainder100 >= 20) {
-            return "\(count) дня"
-        } else {
-            return "\(count) дней"
-        }
-    }
-    
     private func setupConstraints() {
         [colorBackgroundView,
          emojiBackgroundView,
