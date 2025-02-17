@@ -28,7 +28,7 @@ final class TrackersViewController: UIViewController {
         let picker = UIDatePicker()
         picker.preferredDatePickerStyle = .compact
         picker.datePickerMode = .date
-        picker.locale = Locale(identifier: "ru_RU")
+        picker.locale = .current
         picker.calendar.firstWeekday = 2
         picker.clipsToBounds = true
         picker.layer.cornerRadius = 8
@@ -39,7 +39,8 @@ final class TrackersViewController: UIViewController {
     
     private lazy var nameLabel: UILabel = {
         let label = UILabel()
-        label.text = "Трекеры"
+        let labelText = NSLocalizedString("trackers", comment: "Label text")
+        label.text = labelText
         label.textColor = .ypBlack
         label.font = .systemFont(ofSize: 34, weight: .bold)
         return label
@@ -54,7 +55,8 @@ final class TrackersViewController: UIViewController {
         textField.delegate = self
         
         let attributes = [NSAttributedString.Key.foregroundColor: UIColor.ypGray]
-        let attributedPlaceholder = NSAttributedString(string: "Поиск", attributes: attributes)
+        let placeholderText = NSLocalizedString("search", comment: "Placeholder text")
+        let attributedPlaceholder = NSAttributedString(string: placeholderText, attributes: attributes)
         textField.attributedPlaceholder = attributedPlaceholder
         return textField
     }()
@@ -69,7 +71,8 @@ final class TrackersViewController: UIViewController {
     
     private lazy var noTrackersLabel: UILabel = {
         let label = UILabel()
-        label.text = "Что будем отслеживать?"
+        let labelText = NSLocalizedString("emptyTrackers.title", comment: "Empty trackers label")
+        label.text = labelText
         label.font = .systemFont(ofSize: 12, weight: .medium)
         label.textAlignment = .center
         label.translatesAutoresizingMaskIntoConstraints = false

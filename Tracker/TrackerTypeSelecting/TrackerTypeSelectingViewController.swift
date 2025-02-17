@@ -12,7 +12,9 @@ final class TrackerTypeSelectingViewController: UIViewController {
     // MARK: - Private Properties
     private lazy var habitButton: UIButton = {
         let button = UIButton(type: .system)
-        button.setTitle("Привычка", for: .normal)
+        let title = NSLocalizedString("habit", comment: "Button title")
+        
+        button.setTitle(title, for: .normal)
         button.backgroundColor = .ypBlack
         button.setTitleColor(.ypWhite, for: .normal)
         button.titleLabel?.font = .systemFont(ofSize: 16, weight: .medium)
@@ -24,7 +26,9 @@ final class TrackerTypeSelectingViewController: UIViewController {
     
     private lazy var irregularEventButton: UIButton = {
         let button = UIButton(type: .system)
-        button.setTitle("Нерегулярное событие", for: .normal)
+        let title = NSLocalizedString("irregularEvent", comment: "Button title")
+        
+        button.setTitle(title, for: .normal)
         button.backgroundColor = .ypBlack
         button.setTitleColor(.ypWhite, for: .normal)
         button.titleLabel?.font = .systemFont(ofSize: 16, weight: .medium)
@@ -53,8 +57,10 @@ final class TrackerTypeSelectingViewController: UIViewController {
     
     // MARK: - Private Methods
     private func configureView() {
+        let title = NSLocalizedString("navigationItem.createTracker", comment: "Navigation item title")
+        
         view.backgroundColor = .ypWhite
-        navigationItem.title = "Создание трекера"
+        navigationItem.title = title
     }
     
     private func setupConstraints() {
