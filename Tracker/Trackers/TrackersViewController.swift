@@ -48,7 +48,7 @@ final class TrackersViewController: UIViewController {
     
     private lazy var searchTextField: UISearchTextField = {
         let textField = UISearchTextField()
-        textField.backgroundColor = .white
+        textField.backgroundColor = .ypWhite
         textField.textColor = .ypBlack
         textField.font = .systemFont(ofSize: 17)
         textField.layer.cornerRadius = 10
@@ -94,6 +94,7 @@ final class TrackersViewController: UIViewController {
         )
         collectionView.register(TrackerCell.self, forCellWithReuseIdentifier: "TrackerCell")
         collectionView.register(TrackersHeaderSection.self, forSupplementaryViewOfKind:UICollectionView.elementKindSectionHeader, withReuseIdentifier: "SectionHeader")
+        collectionView.backgroundColor = .ypWhite
         collectionView.dataSource = self
         collectionView.delegate = self
         return collectionView
