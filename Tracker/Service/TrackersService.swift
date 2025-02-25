@@ -48,6 +48,14 @@ final class TrackersService {
         trackerCategoryStore.addTracker(tracker, to: category)
     }
     
+    func updateTracker(_ tracker: Tracker, for category: String) {
+        trackerCategoryStore.updateTracker(tracker, for: category)
+    }
+    
+    func deleteTracker(_ tracker: Tracker, for category: String) {
+        trackerCategoryStore.deleteTracker(tracker, for: category)
+    }
+    
     func addRecord(_ record: TrackerRecord) {
         trackerRecordStore.addRecord(record)
     }

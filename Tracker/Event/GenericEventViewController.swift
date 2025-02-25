@@ -20,6 +20,17 @@ final class GenericEventViewController: UIViewController {
     private var selectedEmoji: Emoji?
     private var selectedColor: Color?
     private var selectedCategory: String?
+    private var completedDays: Int?
+    private var tracker: Tracker?
+    
+    private lazy var completedDaysLabel: UILabel = {
+        let label = UILabel()
+        label.textColor = .ypBlack
+        label.textAlignment = .center
+        label.font = UIFont.systemFont(ofSize: 32, weight: .bold)
+        label.isHidden = true
+        return label
+    }()
     
     private lazy var nameField: UITextField = {
         let textField = CustomTextField(padding: GenericEventConstants.nameFieldPadding)
@@ -79,6 +90,7 @@ final class GenericEventViewController: UIViewController {
             withReuseIdentifier: GenericEventConstants.styleHeaderReuseIdentifier
         )
         collectionView.isScrollEnabled = false
+        collectionView.allowsSelection = true
         collectionView.backgroundColor = .ypWhite
         collectionView.delegate = self
         collectionView.dataSource = self
@@ -101,7 +113,6 @@ final class GenericEventViewController: UIViewController {
     
     private lazy var createButton: UIButton = {
         let button = UIButton()
-        button.setTitle("Создать", for: .normal)
         button.titleLabel?.font = UIFont.systemFont(ofSize: 16, weight: .medium)
         button.setTitleColor(.ypWhite, for: .normal)
         button.backgroundColor = .ypGray
@@ -145,6 +156,17 @@ final class GenericEventViewController: UIViewController {
         super.init(nibName: nil, bundle: nil)
     }
     
+    init(eventType: EventType,
+         tracker: Tracker,
+         category: String,
+         completedDays: Int) {
+        self.eventType = eventType
+        self.completedDays = completedDays
+        self.tracker = tracker
+        self.selectedCategory = category
+        super.init(nibName: nil, bundle: nil)
+    }
+    
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
@@ -156,6 +178,7 @@ final class GenericEventViewController: UIViewController {
         configureUI()
         configureView()
         setupConstraints()
+        setupEditingMode()
     }
     
     // MARK: - Private Methods
@@ -166,23 +189,34 @@ final class GenericEventViewController: UIViewController {
     
     private func configureUI() {
         switch eventType {
-        case .habit:
+        case .habitCreation:
             reuseIdentifier = "HabitOptionCell"
             habitOptions = ["Категория", "Расписание"]
             habitOptionsTableViewHeight = 150
             navigationTitle = "Новая привычка"
-        case .irregular:
+        case .irregularCreation:
             reuseIdentifier = "IrregularEventOptionCell"
             habitOptions = ["Категория"]
             habitOptionsTableViewHeight = 75
             navigationTitle = "Новое нерегулярное событие"
+        case .habitEditing:
+            reuseIdentifier = "HabitEditingOptionCell"
+            habitOptions = ["Категория", "Расписание"]
+            habitOptionsTableViewHeight = 150
+            navigationTitle = "Редактирование привычки"
+        case .irregularEditing:
+            reuseIdentifier = "IrregularEventEditingOptionCell"
+            habitOptions = ["Категория"]
+            habitOptionsTableViewHeight = 75
+            navigationTitle = "Редактирование события"
         }
     }
     
     private func updateCreateButtonState() {
+        let isHabit = eventType == EventType.habitCreation || eventType == EventType.habitEditing
         let notEmpty = (nameField.text?.isEmpty == false) &&
         selectedCategory?.isEmpty == false &&
-        (eventType == EventType.habit ? !selectedDays.isEmpty : true) &&
+        (isHabit ? !selectedDays.isEmpty : true) &&
         selectedEmoji?.index != nil &&
         selectedColor?.index != nil
         
@@ -206,7 +240,8 @@ final class GenericEventViewController: UIViewController {
         view.addSubview(scrollView)
         scrollView.addSubview(contentView)
         
-        [nameFieldStackView,
+        [completedDaysLabel,
+         nameFieldStackView,
          habitOptionsTableView,
          habitStyleCollectionView,
          buttonsStackView].forEach {
@@ -230,7 +265,12 @@ final class GenericEventViewController: UIViewController {
             contentView.trailingAnchor.constraint(equalTo: scrollView.trailingAnchor),
             contentView.widthAnchor.constraint(equalTo: scrollView.widthAnchor),
             
-            nameFieldStackView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 24),
+            completedDaysLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
+            completedDaysLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
+            completedDaysLabel.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 24),
+            completedDaysLabel.heightAnchor.constraint(equalToConstant: 0),
+            
+            nameFieldStackView.topAnchor.constraint(equalTo: completedDaysLabel.bottomAnchor, constant: 24),
             nameFieldStackView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
             nameFieldStackView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
             nameField.heightAnchor.constraint(equalToConstant: GenericEventConstants.nameFieldHeight),
@@ -264,6 +304,60 @@ final class GenericEventViewController: UIViewController {
         navigationController?.present(categoriesNavController, animated: true)
     }
     
+    private func setupEditingMode() {
+        let isHabitEditing = eventType == EventType.habitEditing
+        let isIrregularEditing = eventType == EventType.irregularEditing
+        let isEditingMode = isHabitEditing || isIrregularEditing
+        
+        setupCompletedDaysLabel(isEditingMode: isEditingMode)
+        setupButtonComplete(isEditingMode: isEditingMode)
+        
+        guard let tracker else { return }
+        nameField.text = tracker.title
+        
+        if isHabitEditing {
+            selectedDays = tracker.schedule
+        }
+        
+        self.contentView.layoutIfNeeded()
+        
+        if isEditingMode {
+            setupHabitStyles(tracker: tracker)
+        }
+    }
+    
+    private func setupCompletedDaysLabel(isEditingMode: Bool) {
+        let completedDaysLabelHeightConstraint = completedDaysLabel.constraints.first { $0.firstAttribute == .height }
+        
+        if isEditingMode {
+            guard let completedDays else { return }
+            completedDaysLabel.isHidden = false
+            completedDaysLabel.text = PluralizeDays.convert(completedDays)
+            completedDaysLabelHeightConstraint?.constant = 78
+        } else {
+            completedDaysLabel.isHidden = true
+            completedDaysLabelHeightConstraint?.constant = 0
+        }
+    }
+    
+    private func setupButtonComplete(isEditingMode: Bool) {
+        let title = isEditingMode ? "Сохранить" : "Создать"
+        createButton.setTitle(title, for: .normal)
+    }
+    
+    private func setupHabitStyles(tracker: Tracker) {
+        let emojiIndex = GenericEventConstants.emoji.firstIndex(of: tracker.emoji)
+        let colorIndex = GenericEventConstants.colors.firstIndex(where: { $0.isEqualToColor(tracker.color)})
+        
+        guard let emojiIndex, let colorIndex else { return }
+        
+        let emojiIndexPath = IndexPath(row: emojiIndex, section: TrackerStyleSections.emoji.rawValue)
+        let colorIndexPath = IndexPath(row: colorIndex, section: TrackerStyleSections.colors.rawValue)
+        
+        collectionView(habitStyleCollectionView, didSelectItemAt: emojiIndexPath)
+        collectionView(habitStyleCollectionView, didSelectItemAt: colorIndexPath)
+    }
+    
     private func showScheduleViewController() {
         let days = Set(selectedDays)
         let scheduleViewController = ScheduleViewController(selectedDays: days)
@@ -282,15 +376,21 @@ final class GenericEventViewController: UIViewController {
     
     @objc private func createButtonTapped() {
         guard let title = nameField.text,
-        let category = selectedCategory,
-        let emoji = selectedEmoji?.emoji,
-        let color = selectedColor?.color else { return }
+              let category = selectedCategory,
+              let emoji = selectedEmoji?.emoji,
+              let color = selectedColor?.color else { return }
         
-        let isHabit = eventType == EventType.habit
+        let isHabit = eventType == EventType.habitCreation || eventType == EventType.habitEditing
+        let isEditingMode = eventType == EventType.habitEditing || eventType == EventType.irregularEditing
         let schedule = isHabit ? selectedDays : []
+        var id = UUID()
+        
+        if let tracker {
+            id = tracker.id
+        }
         
         let newTracker = Tracker(
-            id: UUID(),
+            id: id,
             title: title,
             color: color,
             emoji: emoji,
@@ -298,7 +398,12 @@ final class GenericEventViewController: UIViewController {
             isHabit: isHabit
         )
         
-        trackersService.addTracker(newTracker, to: category)
+        if isEditingMode {
+            trackersService.updateTracker(newTracker, for: category)
+        } else {
+            trackersService.addTracker(newTracker, to: category)
+        }
+        
         view?.window?.rootViewController?.dismiss(animated: true)
     }
     

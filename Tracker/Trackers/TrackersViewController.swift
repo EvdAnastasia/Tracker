@@ -168,6 +168,53 @@ final class TrackersViewController: UIViewController {
         trackersCollectionView.isHidden = !isAnyTracker
     }
     
+    private func pinButtonTapped() {
+        print("Закрепить")
+    }
+    
+    private func unpinButtonTapped() {
+        print("Открепить")
+    }
+    
+    private func editButtonTapped(for indexPath: IndexPath) {
+        let tracker = filteredСategories[indexPath.section].trackers[indexPath.row]
+        let titleCategory = filteredСategories[indexPath.section].title
+        let isHabit = tracker.isHabit
+        let completedDays = completedTrackers.filter { $0.trackerId == tracker.id }.count
+
+        let newViewController = GenericEventViewController(
+            eventType: isHabit ? .habitEditing : .irregularEditing,
+            tracker: tracker,
+            category: titleCategory,
+            completedDays: completedDays
+        )
+        let newNavController = UINavigationController(rootViewController: newViewController)
+        navigationController?.present(newNavController, animated: true)
+    }
+    
+    private func deleteTracker(for indexPath: IndexPath) {
+        let titleCategory = filteredСategories[indexPath.section].title
+        let tracker = filteredСategories[indexPath.section].trackers[indexPath.row]
+        
+        trackersService.deleteTracker(tracker, for: titleCategory)
+    }
+    
+    private func showDeleteConfirmationAlert(for indexPath: IndexPath) {
+        let alertController = UIAlertController(title: "Уверены что хотите удалить трекер?",
+                                                message: nil,
+                                                preferredStyle: .actionSheet)
+        
+        let deleteAction = UIAlertAction(title: "Удалить", style: .destructive) { [weak self] _ in
+            self?.deleteTracker(for: indexPath)
+        }
+        alertController.addAction(deleteAction)
+        
+        let cancelAction = UIAlertAction(title: "Отменить", style: .cancel, handler: nil)
+        alertController.addAction(cancelAction)
+        
+        present(alertController, animated: true, completion: nil)
+    }
+    
     private func setupConstraints() {
         [nameLabel,
          searchTextField,
@@ -315,6 +362,38 @@ extension TrackersViewController: UICollectionViewDelegateFlowLayout {
         referenceSizeForHeaderInSection section: Int
     ) -> CGSize {
         return CGSize(width: collectionView.bounds.width, height: 48)
+    }
+    
+    // контекстное меню
+    func collectionView(
+        _ collectionView: UICollectionView,
+        contextMenuConfigurationForItemsAt indexPaths: [IndexPath],
+        point: CGPoint
+    ) -> UIContextMenuConfiguration? {
+        
+        guard let indexPath = indexPaths.first else { return nil }
+        
+        let configuration = UIContextMenuConfiguration(identifier: nil, previewProvider: nil) { _ in
+            let pinAction = UIAction(title: "Закрепить") { [weak self] _ in
+                self?.pinButtonTapped()
+            }
+            
+            let unpinAction = UIAction(title: "Открепить") { [weak self] _ in
+                self?.unpinButtonTapped()
+            }
+            
+            let editAction = UIAction(title: "Редактировать") { [weak self] _ in
+                self?.editButtonTapped(for: indexPath)
+            }
+            
+            let deleteAction = UIAction(title: "Удалить", attributes: .destructive) { [weak self] _ in
+                self?.showDeleteConfirmationAlert(for: indexPath)
+            }
+            
+            return UIMenu(children: [pinAction, unpinAction, editAction, deleteAction])
+        }
+        
+        return configuration
     }
 }
 

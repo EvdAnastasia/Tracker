@@ -75,6 +75,31 @@ final class TrackerCategoryStore: NSObject {
         trackerStore.addTracker(tracker, category: trackerCategoryCoreData)
     }
     
+    func updateTracker(_ tracker: Tracker, for categoryName: String) {
+        let trackerCategoryCoreData = try? fetchCategory(by: categoryName)
+        
+        guard let trackerCategoryCoreData else {
+            return
+        }
+        
+        let updatedTracker = trackerStore.updateTracker(tracker, category: trackerCategoryCoreData)
+        guard let updatedTracker, let category = updatedTracker.category else { return }
+        
+        if category.title == categoryName {
+            delegate?.categoriesHaveChanged()
+        }
+    }
+    
+    func deleteTracker(_ tracker: Tracker, for categoryName: String) {
+        let trackerCategoryCoreData = try? fetchCategory(by: categoryName)
+        
+        guard let trackerCategoryCoreData else {
+            return
+        }
+        
+        trackerStore.deleteTracker(tracker, category: trackerCategoryCoreData)
+    }
+
     func addCategory(_ name: String) {
         let category = fetchedResultsController.fetchedObjects?.first(where: {$0.title == name})
         if category == nil {
