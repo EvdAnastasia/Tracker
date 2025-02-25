@@ -384,9 +384,11 @@ final class GenericEventViewController: UIViewController {
         let isEditingMode = eventType == EventType.habitEditing || eventType == EventType.irregularEditing
         let schedule = isHabit ? selectedDays : []
         var id = UUID()
+        var isPinned = false
         
         if let tracker {
             id = tracker.id
+            isPinned = tracker.isPinned
         }
         
         let newTracker = Tracker(
@@ -395,7 +397,8 @@ final class GenericEventViewController: UIViewController {
             color: color,
             emoji: emoji,
             schedule: schedule,
-            isHabit: isHabit
+            isHabit: isHabit,
+            isPinned: isPinned
         )
         
         if isEditingMode {

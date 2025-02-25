@@ -135,16 +135,26 @@ final class TrackersViewController: UIViewController {
         let calendar = Calendar.current
         let selectedWeekDay = calendar.component(.weekday, from: currentDate)
         let filterWeekday = selectedWeekDay == 1 ? 7 : selectedWeekDay - 1
+        var pinnedTrackers: [Tracker] = []
         
-        filteredСategories = categories.compactMap { category in
+        var newFilteredСategories = categories.compactMap { category in
             let trackers = filter(trackers: category.trackers, filterWeekday: filterWeekday)
             
-            guard !trackers.isEmpty else { return nil }
-            return TrackerCategory(
+            pinnedTrackers.append(contentsOf: trackers.filter { $0.isPinned })
+            let nonPinnedTrackers = trackers.filter { !$0.isPinned }
+            
+            return nonPinnedTrackers.isEmpty ? nil : TrackerCategory(
                 title: category.title,
-                trackers: trackers
+                trackers: nonPinnedTrackers
             )
         }
+        
+        if !pinnedTrackers.isEmpty {
+            let pinnedCategory = TrackerCategory(title: TrackersConstants.pinnedTitle, trackers: pinnedTrackers)
+            newFilteredСategories.insert(pinnedCategory, at: 0)
+        }
+        
+        filteredСategories = newFilteredСategories
         
         trackersCollectionView.reloadData()
         reloadNoTrackersView()
@@ -168,19 +178,22 @@ final class TrackersViewController: UIViewController {
         trackersCollectionView.isHidden = !isAnyTracker
     }
     
-    private func pinButtonTapped() {
-        print("Закрепить")
-    }
-    
-    private func unpinButtonTapped() {
-        print("Открепить")
+    private func pinToggleButtonTapped(_ isPinned: Bool, for tracker: Tracker) {
+        trackersService.togglePinTracker(isPinned, for: tracker)
     }
     
     private func editButtonTapped(for indexPath: IndexPath) {
         let tracker = filteredСategories[indexPath.section].trackers[indexPath.row]
-        let titleCategory = filteredСategories[indexPath.section].title
+        var titleCategory = filteredСategories[indexPath.section].title
         let isHabit = tracker.isHabit
         let completedDays = completedTrackers.filter { $0.trackerId == tracker.id }.count
+        
+        if tracker.isPinned && titleCategory == TrackersConstants.pinnedTitle {
+            let category = trackersService.fetchCategory(by: tracker.id)
+            guard let category, let title = category.title else { return }
+            
+            titleCategory = title
+        }
 
         let newViewController = GenericEventViewController(
             eventType: isHabit ? .habitEditing : .irregularEditing,
@@ -318,7 +331,8 @@ extension TrackersViewController: UICollectionViewDataSource {
             isCompletedToday: isCompletedToday,
             isFutureTracker: isFutureTracker,
             completedDays: completedDays,
-            indexPath: indexPath
+            indexPath: indexPath,
+            isPinned: tracker.isPinned
         )
         
         return cell
@@ -374,12 +388,12 @@ extension TrackersViewController: UICollectionViewDelegateFlowLayout {
         guard let indexPath = indexPaths.first else { return nil }
         
         let configuration = UIContextMenuConfiguration(identifier: nil, previewProvider: nil) { _ in
-            let pinAction = UIAction(title: "Закрепить") { [weak self] _ in
-                self?.pinButtonTapped()
-            }
+            let tracker = self.filteredСategories[indexPath.section].trackers[indexPath.row]
+            let isPinned = tracker.isPinned
+            let pinToggleTitle = isPinned ? "Открепить" : "Закрепить"
             
-            let unpinAction = UIAction(title: "Открепить") { [weak self] _ in
-                self?.unpinButtonTapped()
+            let pinToggleAction = UIAction(title: pinToggleTitle) { [weak self] _ in
+                self?.pinToggleButtonTapped(!isPinned, for: tracker)
             }
             
             let editAction = UIAction(title: "Редактировать") { [weak self] _ in
@@ -390,7 +404,7 @@ extension TrackersViewController: UICollectionViewDelegateFlowLayout {
                 self?.showDeleteConfirmationAlert(for: indexPath)
             }
             
-            return UIMenu(children: [pinAction, unpinAction, editAction, deleteAction])
+            return UIMenu(children: [pinToggleAction, editAction, deleteAction])
         }
         
         return configuration

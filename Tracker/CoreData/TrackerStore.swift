@@ -33,6 +33,7 @@ final class TrackerStore {
         trackerCoreData.emoji = tracker.emoji
         trackerCoreData.schedule = weekDaysConverter.convertToString(from: tracker.schedule)
         trackerCoreData.isHabit = tracker.isHabit
+        trackerCoreData.isPinned = tracker.isPinned
         trackerCoreData.category = category
         
         coreDataManager.saveContext()
@@ -49,6 +50,7 @@ final class TrackerStore {
             trackerForUpdate.emoji = tracker.emoji
             trackerForUpdate.schedule = weekDaysConverter.convertToString(from: tracker.schedule)
             trackerForUpdate.isHabit = tracker.isHabit
+            trackerForUpdate.isPinned = tracker.isPinned
             trackerForUpdate.category = category
             
             coreDataManager.saveContext()
@@ -70,6 +72,18 @@ final class TrackerStore {
         }
     }
     
+    func togglePinTracker(_ isPinned: Bool, for tracker: Tracker) {
+        let request: NSFetchRequest<TrackerCoreData> = TrackerCoreData.fetchRequest()
+        request.predicate = NSPredicate(format: "id == %@", tracker.id as CVarArg)
+        
+        let fetchedData = try? coreDataManager.context.fetch(request)
+        if let trackerForUpdate = fetchedData?.first {
+            trackerForUpdate.isPinned = isPinned
+
+            coreDataManager.saveContext()
+        }
+    }
+    
     func convertTracker(from trackerCoreData: TrackerCoreData) throws -> Tracker {
         guard let id = trackerCoreData.id,
               let title = trackerCoreData.title,
@@ -85,7 +99,8 @@ final class TrackerStore {
             color: UIColorMarshalling.color(from: color),
             emoji: emoji,
             schedule: weekDaysConverter.convertToArray(from: schedule),
-            isHabit: trackerCoreData.isHabit
+            isHabit: trackerCoreData.isHabit,
+            isPinned: trackerCoreData.isPinned
         )
     }
 }

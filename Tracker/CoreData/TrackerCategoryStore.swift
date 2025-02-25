@@ -65,6 +65,19 @@ final class TrackerCategoryStore: NSObject {
         fetchedResultsController.fetchedObjects?.first(where: {$0.title == name})
     }
     
+    func fetchCategory(by trackerId: UUID ) throws -> TrackerCategoryCoreData? {
+        guard let fetchedObjects = fetchedResultsController.fetchedObjects else {
+            return nil
+        }
+        
+        return fetchedObjects.first { category in
+            if let trackers = category.trackers as? Set<TrackerCoreData> {
+                return trackers.contains { $0.id == trackerId }
+            }
+            return false
+        }
+    }
+    
     func addTracker(_ tracker: Tracker, to categoryName: String) {
         let trackerCategoryCoreData = try? fetchCategory(by: categoryName)
         
@@ -99,7 +112,12 @@ final class TrackerCategoryStore: NSObject {
         
         trackerStore.deleteTracker(tracker, category: trackerCategoryCoreData)
     }
-
+    
+    func togglePinTracker(_ isPinned: Bool, for tracker: Tracker) {
+        trackerStore.togglePinTracker(isPinned, for: tracker)
+        delegate?.categoriesHaveChanged()
+    }
+    
     func addCategory(_ name: String) {
         let category = fetchedResultsController.fetchedObjects?.first(where: {$0.title == name})
         if category == nil {
