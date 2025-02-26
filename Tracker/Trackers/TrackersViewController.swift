@@ -11,10 +11,12 @@ final class TrackersViewController: UIViewController {
     
     // MARK: - Private Properties
     private let trackersService = TrackersService.shared
+    private let userDefaultsService = UserDefaultsService.shared
     private var categories: [TrackerCategory] = []
     private var filteredСategories: [TrackerCategory] = []
     private var completedTrackers: [TrackerRecord] = []
     private var currentDate: Date = Date()
+    private var trackersFilter = TrackersFilter.all
     
     private lazy var plusButton: UIBarButtonItem = {
         let addImage = UIImage(named: "AddIcon")
@@ -58,6 +60,7 @@ final class TrackersViewController: UIViewController {
         let placeholderText = NSLocalizedString("search", comment: "Placeholder text")
         let attributedPlaceholder = NSAttributedString(string: placeholderText, attributes: attributes)
         textField.attributedPlaceholder = attributedPlaceholder
+        textField.addTarget(self, action: #selector(searchTextDidChange), for: .editingChanged)
         return textField
     }()
     
@@ -95,9 +98,27 @@ final class TrackersViewController: UIViewController {
         collectionView.register(TrackerCell.self, forCellWithReuseIdentifier: "TrackerCell")
         collectionView.register(TrackersHeaderSection.self, forSupplementaryViewOfKind:UICollectionView.elementKindSectionHeader, withReuseIdentifier: "SectionHeader")
         collectionView.backgroundColor = .ypWhite
+        collectionView.isScrollEnabled = true
+        collectionView.bounces = true
         collectionView.dataSource = self
         collectionView.delegate = self
         return collectionView
+    }()
+    
+    private lazy var filterButton: UIButton = {
+        let button = UIButton()
+        let title = NSLocalizedString("filters", comment: "Filters label")
+        let titleColor = UIColor { traitCollection in
+            return traitCollection.userInterfaceStyle == .dark ? .white : .white
+        }
+        button.setTitle(title, for: .normal)
+        button.titleLabel?.font = UIFont.systemFont(ofSize: 17, weight: .regular)
+        button.setTitleColor(titleColor, for: .normal)
+        button.backgroundColor = .ypBlue
+        button.layer.masksToBounds = true
+        button.layer.cornerRadius = 16
+        button.addTarget(self, action: #selector(filterButtonTapped), for: .touchUpInside)
+        return button
     }()
     
     private lazy var tapGesture: UITapGestureRecognizer = {
@@ -109,6 +130,7 @@ final class TrackersViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         trackersService.delegate = self
+        userDefaultsService.lastSelectedFilter = trackersFilter.title
         completedTrackers = trackersService.fetchRecords()
         reloadData()
         configureView()
@@ -161,7 +183,11 @@ final class TrackersViewController: UIViewController {
     }
     
     private func filter(trackers: [Tracker], filterWeekday: Int) -> [Tracker] {
-        trackers.filter { tracker in
+        var searchFilteredData: [Tracker] = []
+        var filteredData: [Tracker] = []
+        
+        // фильтрация по дате
+        let dateFilteringTrackers = trackers.filter { tracker in
             tracker.schedule.contains { weekDay in weekDay.rawValue == filterWeekday} == true ||
             // нерегулярное событие показываем сегодня, если оно не было выполнено до этого
             (!tracker.isHabit &&
@@ -170,12 +196,54 @@ final class TrackersViewController: UIViewController {
             // или если было выполнено в этот день
             !tracker.isHabit && isTrackerCompletedToday(id: tracker.id)
         }
+        
+        // фильтрация по поиску
+        if let searchText = searchTextField.text, !searchText.isEmpty {
+            searchFilteredData = dateFilteringTrackers.filter { $0.title.lowercased().contains(searchText.lowercased())
+            }
+        } else {
+            searchFilteredData = dateFilteringTrackers
+        }
+        
+        // применение фильтра
+        if trackersFilter == .completed {
+            filteredData = searchFilteredData.filter { tracker in
+                isTrackerCompletedToday(id: tracker.id)
+            }
+        } else {
+            filteredData = searchFilteredData
+        }
+        
+        if trackersFilter == .uncompleted {
+            return filteredData.filter { tracker in
+                !isTrackerCompletedToday(id: tracker.id)
+            }
+        } else {
+            return filteredData
+        }
+        
     }
     
     private func reloadNoTrackersView() {
         let isAnyTracker = categories.contains { !$0.trackers.isEmpty }
-        noTrackersStackView.isHidden = isAnyTracker
-        trackersCollectionView.isHidden = !isAnyTracker
+        let isAnyFilteredTracker = filteredСategories.contains { !$0.trackers.isEmpty }
+        
+        if isAnyTracker && isAnyFilteredTracker {
+            filterButton.isHidden = false
+            trackersCollectionView.isHidden = false
+            noTrackersStackView.isHidden = true
+        } else {
+            let image = isAnyTracker ? UIImage(named: "ErrorSmile") : UIImage(named: "StarIcon")
+            let text = isAnyTracker ?
+            NSLocalizedString("emptyFilteredTrackers.title", comment: "Empty filtered trackers label") :
+            NSLocalizedString("emptyTrackers.title", comment: "Empty trackers label")
+            
+            filterButton.isHidden = true
+            trackersCollectionView.isHidden = true
+            noTrackersStackView.isHidden = false
+            noTrackersImageView.image = image
+            noTrackersLabel.text = text
+        }
     }
     
     private func pinToggleButtonTapped(_ isPinned: Bool, for tracker: Tracker) {
@@ -194,7 +262,7 @@ final class TrackersViewController: UIViewController {
             
             titleCategory = title
         }
-
+        
         let newViewController = GenericEventViewController(
             eventType: isHabit ? .habitEditing : .irregularEditing,
             tracker: tracker,
@@ -232,12 +300,15 @@ final class TrackersViewController: UIViewController {
         [nameLabel,
          searchTextField,
          noTrackersStackView,
-         trackersCollectionView].forEach {
+         trackersCollectionView,
+         filterButton].forEach {
             $0.translatesAutoresizingMaskIntoConstraints = false
             view.addSubview($0)
         }
         
         view.addGestureRecognizer(tapGesture)
+        
+        trackersCollectionView.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: 70, right: 0)
         
         NSLayoutConstraint.activate([
             nameLabel.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 16),
@@ -256,7 +327,25 @@ final class TrackersViewController: UIViewController {
             trackersCollectionView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
             trackersCollectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
             trackersCollectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
+            
+            filterButton.heightAnchor.constraint(equalToConstant: 50),
+            filterButton.widthAnchor.constraint(equalToConstant: 114),
+            filterButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -16),
+            filterButton.centerXAnchor.constraint(equalTo: view.centerXAnchor)
         ])
+    }
+    
+    private func activateFilter(for filter: TrackersFilter) {
+        switch filter {
+        case .all:
+            filterButton.titleLabel?.textColor = .white
+        case .forToday:
+            filterButton.titleLabel?.textColor = .white
+        case .completed:
+            filterButton.titleLabel?.textColor = .green
+        case .uncompleted:
+            filterButton.titleLabel?.textColor = .ypRed
+        }
     }
     
     @objc private func addNewTracker() {
@@ -268,6 +357,17 @@ final class TrackersViewController: UIViewController {
     @objc private func dateChanged() {
         currentDate = datePicker.date
         reloadFilteredCategories()
+    }
+    
+    @objc func searchTextDidChange() {
+        reloadFilteredCategories()
+    }
+    
+    @objc func filterButtonTapped() {
+        let filtersViewController = FiltersViewController()
+        filtersViewController.delegate = self
+        let filtersNavController = UINavigationController(rootViewController: filtersViewController)
+        present(filtersNavController, animated: true)
     }
     
     @objc private func hideKeyboard() {
@@ -435,5 +535,19 @@ extension TrackersViewController: UITextFieldDelegate {
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         textField.resignFirstResponder()
         return true
+    }
+}
+
+extension TrackersViewController: FiltersViewControllerDelegate {
+    func didSelectFilter(_ filter: TrackersFilter) {
+        trackersFilter = filter
+        activateFilter(for: filter)
+        
+        if trackersFilter == .forToday {
+            currentDate = Date()
+            datePicker.date = currentDate
+        }
+        
+        reloadFilteredCategories()
     }
 }

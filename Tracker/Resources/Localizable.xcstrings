@@ -52,6 +52,23 @@
         }
       }
     },
+    "emptyFilteredTrackers.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nothing found"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Ничего не найдено"
+          }
+        }
+      }
+    },
     "emptyTrackers.title" : {
       "extractionState" : "manual",
       "localizations" : {
