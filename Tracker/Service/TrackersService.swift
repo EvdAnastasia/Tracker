@@ -36,6 +36,10 @@ final class TrackersService {
         trackerCategoryStore.fetchCategories()
     }
     
+    func fetchCategory(by trackerId: UUID) -> TrackerCategoryCoreData? {
+        try? trackerCategoryStore.fetchCategory(by: trackerId)
+    }
+    
     func fetchRecords() -> [TrackerRecord] {
         trackerRecordStore.fetchRecords()
     }
@@ -46,6 +50,18 @@ final class TrackersService {
     
     func addTracker(_ tracker: Tracker, to category: String) {
         trackerCategoryStore.addTracker(tracker, to: category)
+    }
+    
+    func updateTracker(_ tracker: Tracker, for category: String) {
+        trackerCategoryStore.updateTracker(tracker, for: category)
+    }
+    
+    func deleteTracker(_ tracker: Tracker, for category: String) {
+        trackerCategoryStore.deleteTracker(tracker, for: category)
+    }
+    
+    func togglePinTracker(_ isPinned: Bool, for tracker: Tracker) {
+        trackerCategoryStore.togglePinTracker(isPinned, for: tracker)
     }
     
     func addRecord(_ record: TrackerRecord) {
