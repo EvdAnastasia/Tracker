@@ -137,6 +137,16 @@ final class TrackersViewController: UIViewController {
         setupConstraints()
     }
     
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        AppMetricaService.reportEvent(name: "openTrackers", event: .open, screen: .main)
+    }
+    
+    override func viewDidDisappear(_ animated: Bool) {
+        super.viewDidDisappear(animated)
+        AppMetricaService.reportEvent(name: "closeTrackers", event: .close, screen: .main)
+    }
+    
     // MARK: - Private Methods
     private func reloadData() {
         categories = trackersService.fetchCategories()
@@ -251,6 +261,8 @@ final class TrackersViewController: UIViewController {
     }
     
     private func editButtonTapped(for indexPath: IndexPath) {
+        AppMetricaService.reportEvent(name: "editTracker", event: .click, screen: .main, item: .edit)
+        
         let tracker = filteredСategories[indexPath.section].trackers[indexPath.row]
         var titleCategory = filteredСategories[indexPath.section].title
         let isHabit = tracker.isHabit
@@ -292,6 +304,8 @@ final class TrackersViewController: UIViewController {
     }
     
     private func showDeleteConfirmationAlert(for indexPath: IndexPath) {
+        AppMetricaService.reportEvent(name: "deleteTracker", event: .click, screen: .main, item: .delete)
+        
         let alertController = UIAlertController(title: "Уверены что хотите удалить трекер?",
                                                 message: nil,
                                                 preferredStyle: .actionSheet)
@@ -360,6 +374,8 @@ final class TrackersViewController: UIViewController {
     }
     
     @objc private func addNewTracker() {
+        AppMetricaService.reportEvent(name: "addTracker", event: .click, screen: .main, item: .addTrack)
+        
         let trackerTypeSelectingViewController = TrackerTypeSelectingViewController()
         let trackerTypeSelectingNavController = UINavigationController(rootViewController: trackerTypeSelectingViewController)
         navigationController?.present(trackerTypeSelectingNavController, animated: true)
@@ -375,6 +391,8 @@ final class TrackersViewController: UIViewController {
     }
     
     @objc func filterButtonTapped() {
+        AppMetricaService.reportEvent(name: "filterTapped", event: .click, screen: .main, item: .filter)
+        
         let filtersViewController = FiltersViewController()
         filtersViewController.delegate = self
         let filtersNavController = UINavigationController(rootViewController: filtersViewController)
@@ -524,6 +542,8 @@ extension TrackersViewController: UICollectionViewDelegateFlowLayout {
 
 extension TrackersViewController: TrackerCellDelegate {
     func completeTracker(id: UUID, at indexPath: IndexPath) {
+        AppMetricaService.reportEvent(name: "completeTracker", event: .click, screen: .main, item: .track)
+        
         let startOfDay = Calendar.current.startOfDay(for: currentDate)
         let trackerRecord = TrackerRecord(trackerId: id, date: startOfDay)
         
