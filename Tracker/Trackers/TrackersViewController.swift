@@ -274,8 +274,19 @@ final class TrackersViewController: UIViewController {
     }
     
     private func deleteTracker(for indexPath: IndexPath) {
-        let titleCategory = filteredСategories[indexPath.section].title
+        var titleCategory = filteredСategories[indexPath.section].title
         let tracker = filteredСategories[indexPath.section].trackers[indexPath.row]
+        
+        if tracker.isPinned && titleCategory == TrackersConstants.pinnedTitle {
+            let category = trackersService.fetchCategory(by: tracker.id)
+            guard let category, let title = category.title else { return }
+            
+            titleCategory = title
+        }
+        
+        let startOfDay = Calendar.current.startOfDay(for: currentDate)
+        let trackerRecord = TrackerRecord(trackerId: tracker.id, date: startOfDay)
+        trackersService.deleteRecord(trackerRecord)
         
         trackersService.deleteTracker(tracker, for: titleCategory)
     }
