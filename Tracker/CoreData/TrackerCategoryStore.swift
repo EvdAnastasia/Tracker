@@ -65,6 +65,19 @@ final class TrackerCategoryStore: NSObject {
         fetchedResultsController.fetchedObjects?.first(where: {$0.title == name})
     }
     
+    func fetchCategory(by trackerId: UUID ) throws -> TrackerCategoryCoreData? {
+        guard let fetchedObjects = fetchedResultsController.fetchedObjects else {
+            return nil
+        }
+        
+        return fetchedObjects.first { category in
+            if let trackers = category.trackers as? Set<TrackerCoreData> {
+                return trackers.contains { $0.id == trackerId }
+            }
+            return false
+        }
+    }
+    
     func addTracker(_ tracker: Tracker, to categoryName: String) {
         let trackerCategoryCoreData = try? fetchCategory(by: categoryName)
         
@@ -73,6 +86,36 @@ final class TrackerCategoryStore: NSObject {
         }
         
         trackerStore.addTracker(tracker, category: trackerCategoryCoreData)
+    }
+    
+    func updateTracker(_ tracker: Tracker, for categoryName: String) {
+        let trackerCategoryCoreData = try? fetchCategory(by: categoryName)
+        
+        guard let trackerCategoryCoreData else {
+            return
+        }
+        
+        let updatedTracker = trackerStore.updateTracker(tracker, category: trackerCategoryCoreData)
+        guard let updatedTracker, let category = updatedTracker.category else { return }
+        
+        if category.title == categoryName {
+            delegate?.categoriesHaveChanged()
+        }
+    }
+    
+    func deleteTracker(_ tracker: Tracker, for categoryName: String) {
+        let trackerCategoryCoreData = try? fetchCategory(by: categoryName)
+        
+        guard let trackerCategoryCoreData else {
+            return
+        }
+        
+        trackerStore.deleteTracker(tracker, category: trackerCategoryCoreData)
+    }
+    
+    func togglePinTracker(_ isPinned: Bool, for tracker: Tracker) {
+        trackerStore.togglePinTracker(isPinned, for: tracker)
+        delegate?.categoriesHaveChanged()
     }
     
     func addCategory(_ name: String) {

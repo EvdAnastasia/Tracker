@@ -14,6 +14,7 @@ final class UserDefaultsService {
     // MARK: - Private Properties
     private enum Keys: String {
         case hasCompletedOnboarding
+        case lastSelectedFilter
     }
     private let storage = UserDefaults.standard
     
@@ -27,6 +28,15 @@ extension UserDefaultsService: UserDefaultsServiceProtocol {
         }
         set {
             storage.set(newValue, forKey: Keys.hasCompletedOnboarding.rawValue)
+        }
+    }
+    
+    var lastSelectedFilter: String? {
+        get {
+            storage.string(forKey: Keys.lastSelectedFilter.rawValue)
+        }
+        set {
+            storage.set(newValue, forKey: Keys.lastSelectedFilter.rawValue)
         }
     }
 }

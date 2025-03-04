@@ -12,6 +12,8 @@ enum TrackerCellConstants {
     static let colorBackgroundViewHeight: CGFloat = 90
     static let emojiBackgroundViewSize: CGFloat = 24
     static let padding: CGFloat = 12
+    static let smallPadding: CGFloat = 4
     static let plusButtonSize: CGFloat = 34
     static let plusButtonPadding: CGFloat = 8
+    static let pinImageViewSize: CGFloat = 24
 }

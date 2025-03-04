@@ -98,4 +98,7 @@ iOSInjectionProject/
 /*.gcno
 **/xcshareddata/WorkspaceSettings.xcsettings
 
+Tracker.xcscheme
+testViewController.1.png
+Pods/
 # End of https://www.toptal.com/developers/gitignore/api/swift,xcode

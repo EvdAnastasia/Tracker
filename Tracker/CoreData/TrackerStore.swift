@@ -33,9 +33,55 @@ final class TrackerStore {
         trackerCoreData.emoji = tracker.emoji
         trackerCoreData.schedule = weekDaysConverter.convertToString(from: tracker.schedule)
         trackerCoreData.isHabit = tracker.isHabit
+        trackerCoreData.isPinned = tracker.isPinned
         trackerCoreData.category = category
         
         coreDataManager.saveContext()
+    }
+    
+    func updateTracker(_ tracker: Tracker, category: TrackerCategoryCoreData) -> TrackerCoreData? {
+        let request: NSFetchRequest<TrackerCoreData> = TrackerCoreData.fetchRequest()
+        request.predicate = NSPredicate(format: "id == %@", tracker.id as CVarArg)
+        
+        let fetchedData = try? coreDataManager.context.fetch(request)
+        if let trackerForUpdate = fetchedData?.first {
+            trackerForUpdate.title = tracker.title
+            trackerForUpdate.color = UIColorMarshalling.hexString(from: tracker.color)
+            trackerForUpdate.emoji = tracker.emoji
+            trackerForUpdate.schedule = weekDaysConverter.convertToString(from: tracker.schedule)
+            trackerForUpdate.isHabit = tracker.isHabit
+            trackerForUpdate.isPinned = tracker.isPinned
+            trackerForUpdate.category = category
+            
+            coreDataManager.saveContext()
+            
+            return trackerForUpdate
+        }
+        
+        return nil
+    }
+    
+    func deleteTracker(_ tracker: Tracker, category: TrackerCategoryCoreData) {
+        let request: NSFetchRequest<TrackerCoreData> = TrackerCoreData.fetchRequest()
+        request.predicate = NSPredicate(format: "id == %@ AND category == %@", tracker.id as CVarArg, category as CVarArg)
+        
+        let fetchedData = try? coreDataManager.context.fetch(request)
+        if let trackerForDelete = fetchedData?.first {
+            coreDataManager.context.delete(trackerForDelete)
+            coreDataManager.saveContext()
+        }
+    }
+    
+    func togglePinTracker(_ isPinned: Bool, for tracker: Tracker) {
+        let request: NSFetchRequest<TrackerCoreData> = TrackerCoreData.fetchRequest()
+        request.predicate = NSPredicate(format: "id == %@", tracker.id as CVarArg)
+        
+        let fetchedData = try? coreDataManager.context.fetch(request)
+        if let trackerForUpdate = fetchedData?.first {
+            trackerForUpdate.isPinned = isPinned
+
+            coreDataManager.saveContext()
+        }
     }
     
     func convertTracker(from trackerCoreData: TrackerCoreData) throws -> Tracker {
@@ -53,7 +99,8 @@ final class TrackerStore {
             color: UIColorMarshalling.color(from: color),
             emoji: emoji,
             schedule: weekDaysConverter.convertToArray(from: schedule),
-            isHabit: trackerCoreData.isHabit
+            isHabit: trackerCoreData.isHabit,
+            isPinned: trackerCoreData.isPinned
         )
     }
 }

@@ -45,18 +45,26 @@ final class TrackerCell: UICollectionViewCell {
         return label
     }()
     
+    private lazy var pinImageView: UIImageView = {
+        let imageView = UIImageView()
+        imageView.image = UIImage(named: "Pin")
+        imageView.tintColor = .white
+        imageView.isHidden = true
+        return imageView
+    }()
+    
     private lazy var nameLabel: UILabel = {
         let label = UILabel()
         label.font = .systemFont(ofSize: 12, weight: .medium)
         label.numberOfLines = 0
         label.lineBreakMode = .byWordWrapping
-        label.textColor = .ypWhite
+        label.textColor = .white
         return label
     }()
     
     private lazy var сounterLabel: UILabel = {
         let label = UILabel()
-        label.text = "0 дней"
+        label.text = PluralizeDays.convert(0)
         label.font = .systemFont(ofSize: 12, weight: .medium)
         label.textColor = .ypBlack
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -94,7 +102,8 @@ final class TrackerCell: UICollectionViewCell {
         isCompletedToday: Bool,
         isFutureTracker: Bool,
         completedDays: Int,
-        indexPath: IndexPath
+        indexPath: IndexPath,
+        isPinned: Bool
     ) {
         self.trackerId = tracker.id
         self.isCompletedToday = isCompletedToday
@@ -105,7 +114,7 @@ final class TrackerCell: UICollectionViewCell {
         emojiLabel.text = tracker.emoji
         nameLabel.text = tracker.title
         
-        let wordDay = pluralizeDays(completedDays)
+        let wordDay = PluralizeDays.convert(completedDays)
         сounterLabel.text = "\(wordDay)"
         
         plusButton.isEnabled = !isFutureTracker
@@ -115,25 +124,15 @@ final class TrackerCell: UICollectionViewCell {
         plusButton.setImage(image, for: .normal)
         plusButton.tintColor = color
         plusButton.alpha = isCompletedToday ?  0.3 : 1
+        
+        pinImageView.isHidden = !isPinned
     }
     
     // MARK: - Private Methods
-    private func pluralizeDays(_ count: Int) -> String {
-        let remainder10 = count % 10
-        let remainder100 = count % 100
-        
-        if remainder10 == 1 && remainder100 != 11 {
-            return "\(count) день"
-        } else if remainder10 >= 2 && remainder10 <= 4 && (remainder100 < 10 || remainder100 >= 20) {
-            return "\(count) дня"
-        } else {
-            return "\(count) дней"
-        }
-    }
-    
     private func setupConstraints() {
         [colorBackgroundView,
          emojiBackgroundView,
+         pinImageView,
          nameLabel,
          counterStackView].forEach {
             $0.translatesAutoresizingMaskIntoConstraints = false
@@ -155,6 +154,11 @@ final class TrackerCell: UICollectionViewCell {
             
             emojiLabel.centerXAnchor.constraint(equalTo: emojiBackgroundView.centerXAnchor),
             emojiLabel.centerYAnchor.constraint(equalTo: emojiBackgroundView.centerYAnchor),
+            
+            pinImageView.widthAnchor.constraint(equalToConstant: TrackerCellConstants.pinImageViewSize),
+            pinImageView.heightAnchor.constraint(equalToConstant: TrackerCellConstants.pinImageViewSize),
+            pinImageView.trailingAnchor.constraint(equalTo: colorBackgroundView.trailingAnchor, constant: -TrackerCellConstants.smallPadding),
+            pinImageView.topAnchor.constraint(equalTo: colorBackgroundView.topAnchor, constant: TrackerCellConstants.padding),
             
             nameLabel.leadingAnchor.constraint(equalTo: colorBackgroundView.leadingAnchor, constant: TrackerCellConstants.padding),
             nameLabel.trailingAnchor.constraint(equalTo: colorBackgroundView.trailingAnchor, constant: -TrackerCellConstants.padding),
