@@ -25,4 +25,14 @@ enum AnalyticsModel {
         case edit
         case delete
     }
+    
+    enum Name: String {
+        case openTrackers
+        case closeTrackers
+        case editTracker
+        case deleteTracker
+        case addTracker
+        case filterTapped
+        case completeTracker
+    }
 }

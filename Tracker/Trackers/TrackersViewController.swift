@@ -108,12 +108,9 @@ final class TrackersViewController: UIViewController {
     private lazy var filterButton: UIButton = {
         let button = UIButton()
         let title = NSLocalizedString("filters", comment: "Filters label")
-        let titleColor = UIColor { traitCollection in
-            return traitCollection.userInterfaceStyle == .dark ? .white : .white
-        }
         button.setTitle(title, for: .normal)
         button.titleLabel?.font = UIFont.systemFont(ofSize: 17, weight: .regular)
-        button.setTitleColor(titleColor, for: .normal)
+        button.setTitleColor(.white, for: .normal)
         button.backgroundColor = .ypBlue
         button.layer.masksToBounds = true
         button.layer.cornerRadius = 16
@@ -139,12 +136,12 @@ final class TrackersViewController: UIViewController {
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-        AppMetricaService.reportEvent(name: "openTrackers", event: .open, screen: .main)
+        AppMetricaService.reportEvent(name: .openTrackers, event: .open, screen: .main)
     }
     
     override func viewDidDisappear(_ animated: Bool) {
         super.viewDidDisappear(animated)
-        AppMetricaService.reportEvent(name: "closeTrackers", event: .close, screen: .main)
+        AppMetricaService.reportEvent(name: .closeTrackers, event: .close, screen: .main)
     }
     
     // MARK: - Private Methods
@@ -261,7 +258,7 @@ final class TrackersViewController: UIViewController {
     }
     
     private func editButtonTapped(for indexPath: IndexPath) {
-        AppMetricaService.reportEvent(name: "editTracker", event: .click, screen: .main, item: .edit)
+        AppMetricaService.reportEvent(name: .editTracker, event: .click, screen: .main, item: .edit)
         
         let tracker = filteredСategories[indexPath.section].trackers[indexPath.row]
         var titleCategory = filteredСategories[indexPath.section].title
@@ -304,7 +301,7 @@ final class TrackersViewController: UIViewController {
     }
     
     private func showDeleteConfirmationAlert(for indexPath: IndexPath) {
-        AppMetricaService.reportEvent(name: "deleteTracker", event: .click, screen: .main, item: .delete)
+        AppMetricaService.reportEvent(name: .deleteTracker, event: .click, screen: .main, item: .delete)
         
         let alertController = UIAlertController(title: "Уверены что хотите удалить трекер?",
                                                 message: nil,
@@ -374,7 +371,7 @@ final class TrackersViewController: UIViewController {
     }
     
     @objc private func addNewTracker() {
-        AppMetricaService.reportEvent(name: "addTracker", event: .click, screen: .main, item: .addTrack)
+        AppMetricaService.reportEvent(name: .addTracker, event: .click, screen: .main, item: .addTrack)
         
         let trackerTypeSelectingViewController = TrackerTypeSelectingViewController()
         let trackerTypeSelectingNavController = UINavigationController(rootViewController: trackerTypeSelectingViewController)
@@ -386,12 +383,12 @@ final class TrackersViewController: UIViewController {
         reloadFilteredCategories()
     }
     
-    @objc func searchTextDidChange() {
+    @objc private func searchTextDidChange() {
         reloadFilteredCategories()
     }
     
-    @objc func filterButtonTapped() {
-        AppMetricaService.reportEvent(name: "filterTapped", event: .click, screen: .main, item: .filter)
+    @objc private func filterButtonTapped() {
+        AppMetricaService.reportEvent(name: .filterTapped, event: .click, screen: .main, item: .filter)
         
         let filtersViewController = FiltersViewController()
         filtersViewController.delegate = self
@@ -542,7 +539,7 @@ extension TrackersViewController: UICollectionViewDelegateFlowLayout {
 
 extension TrackersViewController: TrackerCellDelegate {
     func completeTracker(id: UUID, at indexPath: IndexPath) {
-        AppMetricaService.reportEvent(name: "completeTracker", event: .click, screen: .main, item: .track)
+        AppMetricaService.reportEvent(name: .completeTracker, event: .click, screen: .main, item: .track)
         
         let startOfDay = Calendar.current.startOfDay(for: currentDate)
         let trackerRecord = TrackerRecord(trackerId: id, date: startOfDay)

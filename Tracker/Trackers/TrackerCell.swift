@@ -55,13 +55,10 @@ final class TrackerCell: UICollectionViewCell {
     
     private lazy var nameLabel: UILabel = {
         let label = UILabel()
-        let textColor = UIColor { traitCollection in
-            return traitCollection.userInterfaceStyle == .dark ? .white : .white
-        }
         label.font = .systemFont(ofSize: 12, weight: .medium)
         label.numberOfLines = 0
         label.lineBreakMode = .byWordWrapping
-        label.textColor = textColor
+        label.textColor = .white
         return label
     }()
     

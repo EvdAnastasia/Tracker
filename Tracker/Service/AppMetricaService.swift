@@ -16,7 +16,7 @@ final class AppMetricaService {
     }
     
     static func reportEvent(
-        name: String,
+        name: AnalyticsModel.Name,
         event: AnalyticsModel.Event,
         screen: AnalyticsModel.Screen,
         item: AnalyticsModel.Item? = nil
@@ -27,7 +27,7 @@ final class AppMetricaService {
             parameters["item"] = item.rawValue
         }
         
-        AppMetrica.reportEvent(name: name, parameters: parameters, onFailure: { (error) in
+        AppMetrica.reportEvent(name: name.rawValue, parameters: parameters, onFailure: { (error) in
             print("REPORT ERROR: %@", error.localizedDescription)
         })
     }
